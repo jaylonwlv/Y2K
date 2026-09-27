@@ -1,0 +1,25 @@
+# Builds the iOS app in the cloud and uploads it to TestFlight.
+# Runs on every push to main once the repo is linked to the project on expo.dev
+# (see docs/SETUP.md, "Optional: automatic builds"). You can also start it by hand:
+#   npx eas-cli@latest workflow:run testflight.yml
+name: TestFlight
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build_ios:
+    name: Build iOS
+    type: build
+    params:
+      platform: ios
+      profile: production
+
+  submit_ios:
+    name: Submit to TestFlight
+    needs: [build_ios]
+    type: submit
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: production

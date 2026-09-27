@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- App icon, 1024x1024, opaque (iOS applies the rounded mask itself). Original art. -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1024px; height: 1024px; overflow: hidden; }
+  .bg {
+    position: relative; width: 1024px; height: 1024px; overflow: hidden;
+    background:
+      radial-gradient(70% 45% at 50% 0%, #ff9fd6 0%, rgba(255,159,214,0) 100%),
+      linear-gradient(180deg, #ff6fc1 0%, #f23d9f 55%, #d81b82 100%);
+  }
+  .gloss {
+    position: absolute; left: 90px; right: 90px; top: 36px; height: 300px; border-radius: 150px;
+    background: linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 100%);
+  }
+  .star { position: absolute; left: 212px; top: 232px; filter: drop-shadow(0 26px 30px rgba(120, 0, 70, .35)); }
+</style>
+</head>
+<body>
+<div class="bg">
+  <div class="gloss"></div>
+  <svg class="star" width="600" height="600" viewBox="-50 -50 100 100">
+    <defs>
+      <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffffff"/>
+        <stop offset=".38" stop-color="#e4e0f2"/>
+        <stop offset=".52" stop-color="#8f88b8"/>
+        <stop offset=".62" stop-color="#c9c3e3"/>
+        <stop offset="1" stop-color="#ffffff"/>
+      </linearGradient>
+    </defs>
+    <path d="M0,-48 C5,-9 9,-5 48,0 C9,5 5,9 0,48 C-5,9 -9,5 -48,0 C-9,-5 -5,-9 0,-48Z" fill="url(#chrome)" stroke="#fff" stroke-width="1.2"/>
+  </svg>
+</div>
+</body>
+</html>

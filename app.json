@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Y2K Home",
+    "slug": "y2k-home",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "y2khome",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.jaylonwlv.y2khome",
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.com.jaylonwlv.y2khome"]
+      }
+    },
+    "android": {
+      "package": "com.jaylonwlv.y2khome"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F4C6EC",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Your calendar events show up on your home screen widgets.",
+          "remindersPermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": false,
+          "savePhotosPermission": "Save wallpapers to your photo library so you can set them as your wallpaper."
+        }
+      ],
+      "expo-asset",
+      "@bacons/apple-targets"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
