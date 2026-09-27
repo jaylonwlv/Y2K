@@ -3,7 +3,8 @@
 An iOS home-screen customization app with themed wallpapers and matching widgets.
 Built with Expo (React Native), plus a native SwiftUI WidgetKit extension.
 
-**First time? Start with [docs/SETUP.md](docs/SETUP.md)**, which goes from this repo to TestFlight without a Mac.
+**First time? Start with [docs/SETUP.md](docs/SETUP.md)**, which goes from this repo to your phone without a Mac.
+For day-to-day work, use the `development` build profile (dev client plus Metro). Use `production` for TestFlight.
 
 ## What's in v0.1
 

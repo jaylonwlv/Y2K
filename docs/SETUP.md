@@ -64,7 +64,56 @@ git add app.json && git commit -m "Link EAS project" && git push
 
 ---
 
-## 2. First build and upload to TestFlight (one command)
+## 2. Development build: the fast loop for day-to-day work
+
+A development build is your own copy of the app. It loads its JavaScript live from your computer
+through Metro, so changes to the screens show up on your phone within seconds. It installs directly
+from an EAS link, so you skip TestFlight and Apple's processing wait.
+
+**What still needs a new build:** anything native. That means the widget (`targets/widget/`, which
+is Swift), `app.json` plugins and permissions, and new native packages. Rebuild the dev client when those change.
+
+### 2a. One-time phone setup
+
+1. **Register your iPhone:**
+   ```sh
+   npx eas-cli@latest device:create
+   ```
+   Choose **Website**. It shows a QR code or link. Open it **on the iPhone in Safari** and allow the
+   profile download. Then go to Settings, tap **Profile Downloaded**, and tap **Install**. This tells
+   Apple your phone's ID, so the build is allowed to run on it.
+2. **Turn on Developer Mode:** Settings › Privacy & Security › **Developer Mode** (at the bottom), then turn it on and restart.
+   The switch only appears after a development build is installed, so if it isn't there yet, do this
+   step after 2b.
+
+### 2b. Build and install
+
+```sh
+npx eas-cli@latest build --platform ios --profile development
+```
+
+If this is your very first build, you get the same Apple questions as in step 3's table below: log in, then **Yes** to everything.
+EAS also asks which registered devices to include. Select your iPhone.
+
+When the build finishes (about 15 to 25 minutes), open the build page on expo.dev **on your iPhone**, or scan the QR code the
+terminal prints, and tap **Install**.
+
+### 2c. Every day after that
+
+```sh
+npx expo start          # on a PC on the same Wi-Fi as your phone
+npx expo start --tunnel # in a Codespace (slower, but works from anywhere)
+```
+
+Open **Y2K Home** on the phone. It shows the dev launcher. Pick the server, or scan the QR code with the Camera app.
+Save a file and the phone updates.
+
+If you add a new iPhone later, run `device:create` again and rebuild. Development builds only run on
+registered devices.
+
+---
+
+## 3. TestFlight build (for sharing, or the real thing)
 
 ```sh
 npx eas-cli@latest build --platform ios --profile production --auto-submit
@@ -126,7 +175,7 @@ language, Bundle ID `com.jaylonwlv.y2khome`, and SKU `y2khome`. Then run
 
 ---
 
-## 3. Install it on your iPhone
+## 4. Install it from TestFlight
 
 1. On the iPhone, install **TestFlight** from the App Store.
 2. Go to <https://appstoreconnect.apple.com>, then **Apps**, then your app, then the **TestFlight** tab.
@@ -134,7 +183,7 @@ language, Bundle ID `com.jaylonwlv.y2khome`, and SKU `y2khome`. Then run
    Add the build to the group if it isn't there already.
 4. You'll get an email or a TestFlight notification. Tap **Install**.
 
-## 4. Try the first build
+## 5. Try it out
 
 1. **Themes**, then **Y2K Pink Chrome**, then **Preview**, then **Save wallpaper**. Allow Photos, which asks for "add only" access.
 2. In **Photos**, open the wallpaper, tap **Share**, then **Use as Wallpaper**, then **Add**, then **Set as Wallpaper Pair**.
@@ -148,6 +197,8 @@ language, Bundle ID `com.jaylonwlv.y2khome`, and SKU `y2khome`. Then run
 
 ## Later builds
 
+- **After a native change (widget, plugins, permissions):** `npx eas-cli@latest build -p ios --profile development`,
+  then reinstall from the link. Changes that are only JavaScript need no build, because Metro reloads them.
 - **Manually:** `npx eas-cli@latest build -p ios --profile production --auto-submit`. There are no prompts
   now, and the build number goes up automatically.
 - **Automatically on every push to `main`:** go to <https://expo.dev>, open your project, then **Project settings**, then **GitHub**,
