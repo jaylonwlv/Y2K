@@ -8,13 +8,16 @@
     "scheme": "y2khome",
     "userInterfaceStyle": "light",
     "ios": {
+      "appleTeamId": "ZGB8YMCMU3",
       "bundleIdentifier": "com.jaylonwlv.y2khome",
       "supportsTablet": false,
       "config": {
         "usesNonExemptEncryption": false
       },
       "entitlements": {
-        "com.apple.security.application-groups": ["group.com.jaylonwlv.y2khome"]
+        "com.apple.security.application-groups": [
+          "group.com.jaylonwlv.y2khome"
+        ]
       }
     },
     "android": {
