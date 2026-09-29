@@ -34,7 +34,10 @@ export default function EditMixtape() {
   async function save() {
     const trimmed = link.trim();
     if (trimmed && !isPlayableLink(trimmed)) {
-      Alert.alert('That link won’t open', 'Paste a share link from Spotify, Apple Music or YouTube (it starts with https://).');
+      Alert.alert(
+        'That link won’t open',
+        'Paste a share link from Spotify, Apple Music or YouTube (it starts with https://).'
+      );
       return;
     }
     setSaving(true);
@@ -60,8 +63,20 @@ export default function EditMixtape() {
       </WallpaperStage>
       <PinkButton label={coverUri ? 'Change cover' : 'Choose cover'} variant="secondary" onPress={pickCover} />
 
-      <FormField label="Song title" value={title} onChangeText={setTitle} placeholder="Baby Tee Summer" maxLength={40} />
-      <FormField label="Artist or caption" value={subtitle} onChangeText={setSubtitle} placeholder="y2k mixtape" maxLength={40} />
+      <FormField
+        label="Song title"
+        value={title}
+        onChangeText={setTitle}
+        placeholder="Baby Tee Summer"
+        maxLength={40}
+      />
+      <FormField
+        label="Artist or caption"
+        value={subtitle}
+        onChangeText={setSubtitle}
+        placeholder="y2k mixtape"
+        maxLength={40}
+      />
       <FormField
         label="Song link"
         value={link}

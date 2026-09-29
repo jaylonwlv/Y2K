@@ -7,8 +7,7 @@ import { Geist, MOCKUP_WIDGET, Y2K } from './tokens';
 
 type Props = { size?: number; title: string; subtitle: string; coverUri?: string };
 
-const HEART =
-  'M12 20.8s-8.1-5.2-8.1-11.1A4.8 4.8 0 0112 6.4a4.8 4.8 0 018.1 3.3c0 5.9-8.1 11.1-8.1 11.1z';
+const HEART = 'M12 20.8s-8.1-5.2-8.1-11.1A4.8 4.8 0 0112 6.4a4.8 4.8 0 018.1 3.3c0 5.9-8.1 11.1-8.1 11.1z';
 const PLAY = 'M7 4.5l13 7.5-13 7.5z';
 
 /** App-side look-alike of the Mixtape widget (`yMusic` in home2.html). */

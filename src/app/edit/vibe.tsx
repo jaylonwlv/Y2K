@@ -49,8 +49,20 @@ export default function EditVibe() {
       </WallpaperStage>
       <PinkButton label={photoUri ? 'Change photo' : 'Choose photo'} variant="secondary" onPress={pickPhoto} />
 
-      <FormField label="Caption" value={caption} onChangeText={setCaption} placeholder="main character era" maxLength={32} />
-      <FormField label="Small text" value={subcaption} onChangeText={setSubcaption} placeholder="✧ optional" maxLength={40} />
+      <FormField
+        label="Caption"
+        value={caption}
+        onChangeText={setCaption}
+        placeholder="main character era"
+        maxLength={32}
+      />
+      <FormField
+        label="Small text"
+        value={subcaption}
+        onChangeText={setSubcaption}
+        placeholder="✧ optional"
+        maxLength={40}
+      />
 
       <View style={styles.actions}>
         <PinkButton label="Cancel" variant="secondary" onPress={() => router.back()} />
