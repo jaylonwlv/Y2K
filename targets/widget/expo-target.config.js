@@ -11,7 +11,9 @@ module.exports = (config) => ({
   },
   images: {
     // Blurred behind the glass to fake a "transparent" widget (see WallpaperGlass.swift).
+    // Aero Night's glass is opaque, so it needs no wallpaper here.
     wallpaper_y2k: '../../assets/wallpapers/widget/y2k-pink-chrome-widget.png',
+    wallpaper_aero: '../../assets/wallpapers/widget/frutiger-aero-widget.png',
   },
   entitlements: {
     // Same App Group as the app, so the app can hand settings to the widget.

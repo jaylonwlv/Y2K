@@ -6,7 +6,7 @@ import WidgetKit
 // MARK: - Configuration
 
 struct CalendarWidgetIntent: WidgetConfigurationIntent {
-  static var title: LocalizedStringResource { "Chrome Calendar" }
+  static var title: LocalizedStringResource { "Calendar" }
   static var description: IntentDescription {
     "Tell the widget where it sits so its glass lines up with your wallpaper."
   }
@@ -40,6 +40,7 @@ struct CalendarEntry: TimelineEntry {
   let showEvents: Bool
   let slot: GlassSlot
   let size: CGSize
+  var theme: AppTheme = .current
 }
 
 struct CalendarProvider: AppIntentTimelineProvider {
@@ -122,15 +123,16 @@ struct CalendarWidgetView: View {
 
   var body: some View {
     let k = mockupScale(entry.size)
+    let style = entry.theme.style
     VStack(alignment: .leading, spacing: 0) {
       Text(entry.date.formatted(.dateTime.weekday(.wide)).uppercased())
         .font(Geist.bold(14 * k))
         .tracking(0.84 * k)
-        .foregroundStyle(Y2K.hotPink)
+        .foregroundStyle(style.accent)
         .lineLimit(1)
         .minimumScaleFactor(0.7)
 
-      ChromeText(text: entry.date.formatted(.dateTime.day()), font: Geist.black(88 * k), tracking: -4.4 * k)
+      ThemedNumber(text: entry.date.formatted(.dateTime.day()), size: 88 * k, theme: entry.theme)
         .frame(height: 84 * k)
         .padding(.top, 2 * k)
 
@@ -145,7 +147,7 @@ struct CalendarWidgetView: View {
       Spacer(minLength: 0)
     }
     .lineLimit(1)
-    .foregroundStyle(Y2K.ink)
+    .foregroundStyle(style.ink)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .padding(18 * k)
     .widgetURL(entry.access == .notGranted ? AppLink.widgets : nil)
@@ -199,8 +201,8 @@ struct CalendarWidget: Widget {
     AppIntentConfiguration(kind: kind, intent: CalendarWidgetIntent.self, provider: CalendarProvider()) { entry in
       CalendarWidgetBody(entry: entry)
     }
-    .configurationDisplayName("Chrome Calendar")
-    .description("Today's date in chrome, plus what's next.")
+    .configurationDisplayName("Calendar")
+    .description("Today's date, big, plus what's next from your calendar.")
     .supportedFamilies([.systemSmall])
     .contentMarginsDisabled()
   }
@@ -213,7 +215,7 @@ private struct CalendarWidgetBody: View {
   var body: some View {
     CalendarWidgetView(entry: entry)
       .containerBackground(for: .widget) {
-        WallpaperGlass(slot: entry.slot, family: family, size: entry.size)
+        WallpaperGlass(slot: entry.slot, family: family, size: entry.size, theme: entry.theme)
       }
   }
 }

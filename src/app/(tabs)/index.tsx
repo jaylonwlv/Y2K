@@ -1,87 +1,118 @@
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { HomeScreen } from '@/components/home/home-screen';
+import { Geist } from '@/components/widgets/tokens';
+import { getMixtape, getWidgetTheme, sharedImageUri } from '@/lib/widget-bridge';
 import { themes } from '@/themes';
 
+const MINI_WIDTH = 132;
+const MINI_HEIGHT = (MINI_WIDTH * 956) / 440;
+
 export default function ThemesScreen() {
-  const [featured, ...upcoming] = themes;
+  const [active, setActive] = useState(getWidgetTheme);
+  useFocusEffect(useCallback(() => setActive(getWidgetTheme()), []));
+
+  const saved = getMixtape();
+  const mixtape = {
+    title: saved.title,
+    subtitle: saved.subtitle,
+    coverUri: saved.cover ? sharedImageUri('mixtape-cover.jpg', saved.v) : undefined,
+  };
+
   return (
     <ScrollView style={styles.screen} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
       <Text style={styles.title}>Themes</Text>
-      <Text style={styles.subtitle}>Wallpapers and widgets that match.</Text>
+      <Text style={styles.subtitle}>Wallpapers, widgets and icons that match.</Text>
 
-      <Link href={{ pathname: '/preview/[id]', params: { id: featured.id } }} asChild>
-        <Pressable style={({ pressed }) => [styles.hero, pressed && styles.pressed]}>
-          <Image source={featured.wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
-          <View style={styles.heroLabel}>
-            <Text style={styles.heroName}>{featured.name}</Text>
-            <Text style={styles.heroTagline}>{featured.tagline}</Text>
+      {themes.map((theme) => (
+        <Pressable
+          key={theme.id}
+          onPress={() => router.push({ pathname: '/preview/[id]', params: { id: theme.id } })}
+          style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+          <Image source={theme.wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <View style={styles.cardText}>
+            {active === theme.key && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>✓ On your widgets</Text>
+              </View>
+            )}
+            <View style={{ flex: 1 }} />
+            <View style={styles.label}>
+              <Text style={styles.name}>{theme.name}</Text>
+              <Text style={styles.tagline}>{theme.tagline}</Text>
+            </View>
             <View style={styles.cta}>
               <Text style={styles.ctaText}>Preview</Text>
             </View>
           </View>
-        </Pressable>
-      </Link>
-
-      <Text style={styles.section}>Coming soon</Text>
-      <View style={styles.row}>
-        {upcoming.map((theme) => (
-          <View key={theme.id} style={[styles.card, { experimental_backgroundImage: theme.swatch }]}>
-            <Text style={[styles.cardName, { color: theme.palette.ink }]}>{theme.name}</Text>
-            <Text style={[styles.cardTagline, { color: theme.palette.inkSoft }]}>{theme.tagline}</Text>
+          <View style={styles.mini} pointerEvents="none">
+            <HomeScreen
+              width={MINI_WIDTH}
+              height={MINI_HEIGHT}
+              theme={theme.key}
+              wallpaper={theme.wallpaper}
+              mixtape={mixtape}
+            />
           </View>
-        ))}
-      </View>
+        </Pressable>
+      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#FBEFF8' },
-  content: { padding: 20, paddingBottom: 120, gap: 12 },
-  title: { fontSize: 34, fontWeight: '800', color: '#3B0E33', marginTop: 8 },
-  subtitle: { fontSize: 16, color: '#8A4C7E', marginBottom: 8 },
-  hero: {
-    height: 440,
+  content: { padding: 20, paddingBottom: 120, gap: 16 },
+  title: { fontSize: 34, fontFamily: Geist.black, color: '#3B0E33', marginTop: 8 },
+  subtitle: { fontSize: 16, fontFamily: Geist.medium, color: '#8A4C7E', marginBottom: 4 },
+  card: {
+    height: MINI_HEIGHT + 28,
     borderRadius: 32,
     borderCurve: 'continuous',
     overflow: 'hidden',
-    justifyContent: 'flex-end',
-    boxShadow: '0 12px 30px rgba(150, 60, 140, 0.25)',
+    flexDirection: 'row',
+    padding: 14,
+    gap: 12,
+    boxShadow: '0 12px 30px rgba(90, 40, 110, 0.22)',
   },
   pressed: { transform: [{ scale: 0.98 }] },
-  heroLabel: {
-    margin: 12,
-    padding: 16,
-    borderRadius: 24,
+  cardText: { flex: 1, gap: 10 },
+  badge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  badgeText: { fontFamily: Geist.bold, fontSize: 12, color: '#1E7A4A' },
+  label: {
+    padding: 12,
+    borderRadius: 20,
     borderCurve: 'continuous',
-    backgroundColor: 'rgba(255,255,255,0.55)',
+    backgroundColor: 'rgba(255,255,255,0.72)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.9)',
   },
-  heroName: { fontSize: 24, fontWeight: '800', color: '#6E1B5E' },
-  heroTagline: { fontSize: 14, color: '#9E4F8C', marginTop: 2 },
+  name: { fontSize: 20, fontFamily: Geist.bold, color: '#2A1030' },
+  tagline: { fontSize: 13, fontFamily: Geist.medium, color: '#5E3656', marginTop: 2 },
   cta: {
     alignSelf: 'flex-start',
-    marginTop: 12,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 999,
-    experimental_backgroundImage: 'linear-gradient(180deg, #FF8ACB 0%, #E3268F 100%)',
+    backgroundColor: '#1a1020',
   },
-  ctaText: { color: 'white', fontWeight: '800', fontSize: 15 },
-  section: { fontSize: 20, fontWeight: '800', color: '#3B0E33', marginTop: 16 },
-  row: { flexDirection: 'row', gap: 12 },
-  card: {
-    flex: 1,
-    height: 180,
-    borderRadius: 24,
+  ctaText: { color: 'white', fontFamily: Geist.bold, fontSize: 15 },
+  mini: {
+    width: MINI_WIDTH,
+    height: MINI_HEIGHT,
+    borderRadius: 22,
     borderCurve: 'continuous',
-    padding: 14,
-    justifyContent: 'flex-end',
     overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: '#0b0b0d',
   },
-  cardName: { fontSize: 17, fontWeight: '800' },
-  cardTagline: { fontSize: 12, marginTop: 2 },
 });

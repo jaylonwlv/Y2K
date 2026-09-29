@@ -1,0 +1,47 @@
+<!doctype html>
+<!--
+  Frutiger Aero wallpaper (sky, sea, grassy hills, bubbles), from the .aero background in home2.html.
+  Drawn at 440 x 956 pt and rendered at 3x (1320 x 2868) by tools/render-art.mjs. Original art.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 440px; height: 956px; overflow: hidden; }
+  .bg { position: relative; width: 440px; height: 956px; overflow: hidden;
+    background: linear-gradient(180deg, #0d6fcf 0%, #2e9be8 30%, #7fcdf6 52%, #d7f3ff 60%); }
+  .cloud { position: absolute; border-radius: 50%; background: #fff; filter: blur(14px); opacity: .85; }
+  .sunglow { position: absolute; left: 250px; top: 120px; width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 7%, rgba(255,255,240,.75) 14%, rgba(255,255,255,.25) 32%, transparent 62%); }
+  .flare { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.35);
+    background: radial-gradient(circle, rgba(255,255,255,.18), rgba(160,230,255,.08) 60%, transparent 70%); }
+  .sea { position: absolute; left: 0; right: 0; top: 520px; height: 70px; background: linear-gradient(180deg, #bfeaff 0%, #5fbde8 100%); }
+  .sea::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgba(255,255,255,.35) 0 1px, transparent 1px 7px); opacity: .6; }
+  .hill { position: absolute; border-radius: 50%; overflow: hidden; }
+  .grass { position: absolute; inset: 0; background: repeating-linear-gradient(95deg, rgba(20,90,10,.12) 0 1px, transparent 1px 4px); mix-blend-mode: multiply; }
+  .bub { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.75); background:
+      radial-gradient(circle at 30% 26%, rgba(255,255,255,.95) 0 7%, rgba(255,255,255,0) 16%),
+      radial-gradient(circle at 70% 78%, rgba(255,255,255,.55) 0 5%, rgba(255,255,255,0) 14%),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 55%, rgba(190,240,255,.35) 72%, rgba(255,200,250,.25) 86%, rgba(255,255,255,.5) 98%);
+      box-shadow: 0 8px 20px rgba(0,60,120,.12); }
+</style>
+</head>
+<body>
+<div class="bg">
+  <i class="cloud" style="left:-60px;top:150px;width:260px;height:70px"></i>
+  <i class="cloud" style="left:40px;top:120px;width:160px;height:60px"></i>
+  <i class="cloud" style="left:260px;top:330px;width:260px;height:60px;opacity:.7"></i>
+  <i class="cloud" style="left:-40px;top:410px;width:220px;height:50px;opacity:.6"></i>
+  <i class="sunglow"></i>
+  <i class="flare" style="left:190px;top:330px;width:70px;height:70px"></i>
+  <i class="flare" style="left:140px;top:420px;width:30px;height:30px"></i>
+  <i class="sea"></i>
+  <i class="hill" style="left:-180px;top:560px;width:720px;height:520px;background:radial-gradient(ellipse at 42% 10%,#c9f77a 0 8%,#78d344 32%,#3aa22e 62%,#1f7a22 90%)"><i class="grass"></i></i>
+  <i class="hill" style="left:170px;top:620px;width:560px;height:460px;background:radial-gradient(ellipse at 38% 9%,#e0fc98 0 7%,#8ddd4c 30%,#44ad34 64%,#27862a 92%)"><i class="grass"></i></i>
+  <script>
+    for (const [x, y, s] of [[58,262,54],[352,236,34],[30,500,26],[384,470,48],[300,700,30],[76,640,20],[212,560,16],[250,430,12]])
+      document.write(`<i class="bub" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px"></i>`);
+  </script>
+</div>
+</body>
+</html>

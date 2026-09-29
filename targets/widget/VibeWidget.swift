@@ -9,6 +9,7 @@ struct VibeEntry: TimelineEntry {
   let settings: VibeSettings
   let photo: UIImage?
   let size: CGSize
+  var theme: AppTheme = .current
 }
 
 struct VibeProvider: TimelineProvider {
@@ -37,6 +38,7 @@ struct VibeWidgetView: View {
 
   var body: some View {
     let k = mockupScale(entry.size)
+    let style = entry.theme.style
     VStack(alignment: .leading, spacing: 0) {
       HStack {
         Spacer()
@@ -51,12 +53,12 @@ struct VibeWidgetView: View {
           if !entry.settings.caption.isEmpty {
             Text(entry.settings.caption)
               .font(Geist.bold(14 * k))
-              .foregroundStyle(Y2K.ink)
+              .foregroundStyle(style.ink)
           }
           if !entry.settings.subcaption.isEmpty {
             Text(entry.settings.subcaption)
               .font(Geist.medium(12 * k))
-              .foregroundStyle(Y2K.ink.opacity(0.7))
+              .foregroundStyle(style.ink.opacity(0.7))
           }
         }
         .lineLimit(1)
@@ -65,11 +67,10 @@ struct VibeWidgetView: View {
         .padding(.vertical, 9 * k)
         .background {
           RoundedRectangle(cornerRadius: 16 * k, style: .continuous)
-            .fill(LinearGradient(colors: [.white.opacity(0.78), Y2K.glassTint.opacity(0.6)],
-                                 startPoint: .top, endPoint: .bottom))
+            .fill(LinearGradient(colors: style.pill, startPoint: .top, endPoint: .bottom))
             .overlay(
               RoundedRectangle(cornerRadius: 16 * k, style: .continuous)
-                .stroke(Color.white.opacity(0.9), lineWidth: 1)
+                .stroke(style.pillEdge, lineWidth: 1)
             )
             .shadow(color: Color(hex: 0xA03278, opacity: 0.18), radius: 8, x: 0, y: 4)
         }

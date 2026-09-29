@@ -9,10 +9,10 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HomeScreen } from '@/components/home/home-screen';
-import { Y2K_LAYOUTS } from '@/components/home/layouts';
+import { HOME_LAYOUTS } from '@/components/home/layouts';
 import { Geist } from '@/components/widgets/tokens';
 import { saveWallpaperToPhotos } from '@/lib/save-wallpaper';
-import { getMixtape, sharedImageUri } from '@/lib/widget-bridge';
+import { getMixtape, setWidgetTheme, sharedImageUri } from '@/lib/widget-bridge';
 import { getTheme } from '@/themes';
 
 export default function PreviewScreen() {
@@ -24,8 +24,9 @@ export default function PreviewScreen() {
   const [controls, setControls] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  if (!theme?.wallpaper) return null;
+  if (!theme) return null;
   const wallpaper = theme.wallpaper;
+  const layoutCount = HOME_LAYOUTS[theme.key].length;
   const saved = getMixtape();
   const mixtape = {
     title: saved.title,
@@ -35,17 +36,20 @@ export default function PreviewScreen() {
 
   function shuffle() {
     Haptics.selectionAsync();
-    setLayout((l) => (l + 1) % Y2K_LAYOUTS.length);
+    setLayout((l) => (l + 1) % layoutCount);
   }
 
-  async function saveWallpaper() {
+  /** Switches the widgets to this theme and saves its wallpaper to Photos. */
+  async function useTheme() {
+    if (!theme) return;
     setSaving(true);
     try {
+      setWidgetTheme(theme.key);
       await saveWallpaperToPhotos(wallpaper);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
-        'Saved to Photos ✧',
-        'Open Photos, tap the wallpaper, then Share › Use as Wallpaper. Then add the widgets from the Widgets tab.'
+        `${theme.name} is on ✧`,
+        'Your widgets have switched to this theme. The wallpaper is in Photos: open it, tap Share › Use as Wallpaper.'
       );
     } catch (error) {
       Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
@@ -56,9 +60,17 @@ export default function PreviewScreen() {
 
   return (
     <View style={styles.screen}>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.key === 'y2k' ? 'dark' : 'light'} />
       <Pressable style={StyleSheet.absoluteFill} onPress={() => setControls((c) => !c)}>
-        <HomeScreen width={width} height={height} wallpaper={wallpaper} layout={layout} mixtape={mixtape} animated />
+        <HomeScreen
+          width={width}
+          height={height}
+          theme={theme.key}
+          wallpaper={wallpaper}
+          layout={layout}
+          mixtape={mixtape}
+          animated
+        />
       </Pressable>
 
       {controls && (
@@ -68,11 +80,11 @@ export default function PreviewScreen() {
           style={[styles.bar, { bottom: insets.bottom + 14 }]}>
           <Glass style={styles.barInner}>
             <BarButton symbol="xmark" label="Close" onPress={() => router.back()} />
-            <BarButton symbol="shuffle" label="Shuffle" onPress={shuffle} />
+            {layoutCount > 1 && <BarButton symbol="shuffle" label="Shuffle" onPress={shuffle} />}
             <BarButton
-              symbol="photo.on.rectangle"
-              label={saving ? 'Saving…' : 'Wallpaper'}
-              onPress={saveWallpaper}
+              symbol="checkmark.circle"
+              label={saving ? 'Saving…' : 'Use theme'}
+              onPress={useTheme}
               disabled={saving}
             />
             <BarButton

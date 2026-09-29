@@ -8,7 +8,8 @@ import { PinkButton } from '@/components/pink-button';
 import { WallpaperStage } from '@/components/wallpaper-stage';
 import { Geist } from '@/components/widgets/tokens';
 import { VibePreview } from '@/components/widgets/vibe-preview';
-import { getVibe, saveVibe, sharedImageUri, type PickedImage } from '@/lib/widget-bridge';
+import { getVibe, getWidgetTheme, saveVibe, sharedImageUri, type PickedImage } from '@/lib/widget-bridge';
+import { getThemeByKey } from '@/themes';
 
 export default function EditVibe() {
   const initial = getVibe();
@@ -16,6 +17,7 @@ export default function EditVibe() {
   const [subcaption, setSubcaption] = useState(initial.subcaption);
   const [photo, setPhoto] = useState<PickedImage>();
   const [saving, setSaving] = useState(false);
+  const theme = getWidgetTheme();
 
   const photoUri = photo?.uri ?? (initial.photo ? sharedImageUri('vibe-photo.jpg', initial.v) : undefined);
 
@@ -44,8 +46,15 @@ export default function EditVibe() {
       keyboardDismissMode="interactive"
       automaticallyAdjustKeyboardInsets>
       <Text style={styles.title}>Vibe Card</Text>
-      <WallpaperStage height={230}>
-        <VibePreview width={184.4} height={184.4} caption={caption} subcaption={subcaption} photoUri={photoUri} />
+      <WallpaperStage height={230} wallpaper={getThemeByKey(theme).wallpaper}>
+        <VibePreview
+          theme={theme}
+          width={184.4}
+          height={184.4}
+          caption={caption}
+          subcaption={subcaption}
+          photoUri={photoUri}
+        />
       </WallpaperStage>
       <PinkButton label={photoUri ? 'Change photo' : 'Choose photo'} variant="secondary" onPress={pickPhoto} />
 

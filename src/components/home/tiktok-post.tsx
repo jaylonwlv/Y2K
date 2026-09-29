@@ -1,39 +1,52 @@
 import { Image } from 'expo-image';
 import { forwardRef } from 'react';
-import { StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Geist } from '@/components/widgets/tokens';
+import type { Theme } from '@/themes';
 
 import { HomeScreen } from './home-screen';
 
 type Props = {
   /** On-screen width; the post is always 9:16 and gets captured at 1080 × 1920. */
   width: number;
+  theme: Theme;
   hook: string;
   layout: number;
-  wallpaper: ImageSourcePropType;
   mixtape: { title: string; subtitle: string; coverUri?: string };
 };
+
+/** 9:41 today, to match the status bar on the post. */
+function nineFortyOne() {
+  const d = new Date();
+  d.setHours(9, 41, 0, 0);
+  return d;
+}
 
 /**
  * TikTok / Reels post from home2.html's "post" mode: a blurred backdrop, a hook line and the
  * home screen in a phone frame. Every size is in 1080-wide post pixels, scaled by `u`.
  */
-export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
-  { width, hook, layout, wallpaper, mixtape },
-  ref
-) {
+export const TikTokPost = forwardRef<View, Props>(function TikTokPost({ width, theme, hook, layout, mixtape }, ref) {
   const u = width / 1080;
   const screenWidth = 676 * u;
+  // Y2K: hard pink edge. Aero: soft blue drop shadow. Night: neon glow.
+  const shadow =
+    theme.key === 'y2k'
+      ? { textShadowOffset: { width: 0, height: 3 * u }, textShadowRadius: 0 }
+      : theme.key === 'aero'
+        ? { textShadowOffset: { width: 0, height: 4 * u }, textShadowRadius: 18 * u }
+        : { textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 * u };
+
   return (
-    <View ref={ref} collapsable={false} style={[styles.post, { width, height: 1920 * u }]}>
+    <View ref={ref} collapsable={false} style={[styles.post, { width, height: 1920 * u, backgroundColor: theme.base }]}>
       <Image
-        source={wallpaper}
+        source={theme.wallpaper}
         style={[StyleSheet.absoluteFill, { transform: [{ scale: 1.2 }] }]}
         contentFit="cover"
         blurRadius={30}
       />
-      <View style={[StyleSheet.absoluteFill, styles.veil]} />
+      <View style={[StyleSheet.absoluteFill, theme.key === 'night' ? styles.veilDark : styles.veil]} />
 
       <View style={{ height: 342 * u, justifyContent: 'center', paddingHorizontal: 60 * u, paddingTop: 54 * u }}>
         {hook ? (
@@ -42,10 +55,12 @@ export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
             adjustsFontSizeToFit
             style={[
               styles.hook,
+              theme.hookStyle,
+              shadow,
               {
-                fontSize: 86 * u,
+                fontFamily: theme.key === 'y2k' ? Geist.black : Geist.bold,
+                fontSize: 84 * u,
                 lineHeight: 90 * u,
-                textShadowOffset: { width: 0, height: 3 * u },
                 letterSpacing: -2.5 * u,
               },
             ]}>
@@ -63,9 +78,11 @@ export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
           <HomeScreen
             width={screenWidth}
             height={1470 * u}
-            wallpaper={wallpaper}
+            theme={theme.key}
+            wallpaper={theme.wallpaper}
             layout={layout}
             mixtape={mixtape}
+            date={nineFortyOne()}
             statusBar
           />
         </View>
@@ -75,19 +92,14 @@ export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
 });
 
 const styles = StyleSheet.create({
-  post: { overflow: 'hidden', alignItems: 'center', backgroundColor: '#f4c6ec' },
-  veil: { backgroundColor: 'rgba(255,240,250,0.12)' },
-  hook: {
-    fontFamily: Geist.black,
-    color: 'white',
-    textAlign: 'center',
-    textShadowColor: '#e0339a',
-    textShadowRadius: 0,
-  },
+  post: { overflow: 'hidden', alignItems: 'center' },
+  veil: { backgroundColor: 'rgba(255,255,255,0.1)' },
+  veilDark: { backgroundColor: 'rgba(0,0,0,0.15)' },
+  hook: { textAlign: 'center' },
   frame: {
     backgroundColor: '#0b0b0d',
     borderColor: '#2c2c30',
     borderCurve: 'continuous',
-    boxShadow: '0 24px 60px rgba(90, 20, 80, 0.35)',
+    boxShadow: '0 24px 60px rgba(20, 20, 60, 0.35)',
   },
 });

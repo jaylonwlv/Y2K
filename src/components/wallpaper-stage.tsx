@@ -1,17 +1,20 @@
 import { Image } from 'expo-image';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type ImageSourcePropType } from 'react-native';
 
-/** The Y2K wallpaper behind a widget preview, so the glass reads the way it does on the home screen. */
-export function WallpaperStage({ height, children }: { height: number; children: ReactNode }) {
+/** A theme's wallpaper behind a widget preview, so the glass reads the way it does on the home screen. */
+export function WallpaperStage({
+  height,
+  wallpaper = require('@/assets/wallpapers/y2k-pink-chrome.png'),
+  children,
+}: {
+  height: number;
+  wallpaper?: ImageSourcePropType;
+  children: ReactNode;
+}) {
   return (
     <View style={[styles.stage, { height }]}>
-      <Image
-        source={require('@/assets/wallpapers/y2k-pink-chrome.png')}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        contentPosition="center"
-      />
+      <Image source={wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="center" />
       {children}
     </View>
   );

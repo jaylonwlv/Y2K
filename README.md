@@ -6,20 +6,24 @@ Built with Expo (React Native), plus a native SwiftUI WidgetKit extension.
 **First time? Start with [docs/SETUP.md](docs/SETUP.md)**, which goes from this repo to your phone without a Mac.
 For day-to-day work, use the `development` build profile (dev client plus Metro). Use `production` for TestFlight.
 
-## What's in v0.3
+## What's in v0.4
 
-- **Y2K Pink Chrome** theme: an original holographic wallpaper (1320×2868) you can preview and save to Photos.
-- **Home-screen preview**: the full themed home screen (widgets, 12 chrome and jelly-pink icons, search, dock)
-  on the real grid, with **Shuffle** between the four layouts in `home2.html`.
-- **Export for TikTok**: a 1080×1920 post (hook line, blurred backdrop, phone frame) you can save to Photos or share.
-- **Widgets**, all built to the mockup in `home2.html` (Geist font, chrome lettering, frosted pink glass):
-  - **Chrome Calendar** (small): today's date plus your next two events from the Calendar app.
+- **Three themes**, each with an original wallpaper (1320×2868), themed icons and a matching home layout:
+  - **Y2K Pink Chrome**: holo foil, chrome spheres, chrome and jelly-pink icons.
+  - **Frutiger Aero**: sky, sea, grassy hills and bubbles, glossy aqua icons.
+  - **Aero Night**: aurora and stars, dark tinted tiles with neon glyphs.
+- **Home-screen preview** of each theme on the real grid, with **Shuffle** between layouts and **Use theme**
+  (switches every widget to the theme and saves its wallpaper to Photos).
+- **Export for TikTok**: a 1080×1920 post with theme-specific hook lines, saved to Photos or shared.
+- **Widgets** that restyle with the chosen theme (glass, colours, numbers), all built to `home2.html`:
+  - **Calendar** (small): today's date plus your next two events.
   - **Mixtape** (small): a song you pick, with your own cover. Tapping it opens the song link.
   - **Vibe Card** (small and medium): your photo with a caption.
-  - **Chrome Clock** (small).
-- The glass is a blurred crop of the wallpaper. *Edit Widget › Side / Starts on icon row* tells a widget where it sits.
-  The grid comes from iOS 26 measurements (`src/lib/home-grid.ts`, `targets/widget/WallpaperGlass.swift`).
-- Frutiger Aero and Aero Night appear as "coming soon" cards.
+  - **Clock** (small): chrome digital in Y2K, an analog dial in Aero and Aero Night.
+  - **World Clocks** (medium): home plus three cities you pick; dials light up where it's daytime.
+- The glass is a blurred crop of the wallpaper (Night's is opaque). *Edit Widget › Side / Starts on icon row*
+  tells a widget where it sits. The grid comes from iOS 26 measurements (`src/lib/home-grid.ts`).
+- The Aero weather card appears in previews and exports only. A live Weather widget needs WeatherKit.
 
 ## Layout
 

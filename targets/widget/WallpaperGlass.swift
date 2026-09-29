@@ -57,33 +57,48 @@ enum HomeGrid {
 
 // MARK: - Frosted glass
 
-/// Frosted pink glass over the matching crop of the wallpaper (`.glassw` in the mockup):
-/// the crop stands in for backdrop-filter, since widgets can't see the real wallpaper.
+/// The themed glass behind a widget (`.glassw` in the mockup). Y2K and Aero frost a matching crop
+/// of the wallpaper, which stands in for backdrop-filter since widgets can't see the real
+/// wallpaper; Night's dark tinted glass is opaque.
 struct WallpaperGlass: View {
   let slot: GlassSlot
   let family: WidgetFamily
   let size: CGSize
-  var imageName = "wallpaper_y2k"
+  var theme: AppTheme = .y2k
 
   @Environment(\.widgetRenderingMode) private var renderingMode
 
   var body: some View {
+    let style = theme.style
     ZStack {
-      if renderingMode == .fullColor, let image = UIImage(named: imageName) {
-        wallpaperCrop(image)
-          .blur(radius: 18, opaque: true)
-          .saturation(1.3)
-      } else {
-        Color(hex: 0xF4C6EC)
+      if !style.glassIsOpaque {
+        if renderingMode == .fullColor, let image = UIImage(named: style.wallpaper) {
+          wallpaperCrop(image)
+            .blur(radius: 18, opaque: true)
+            .saturation(1.3)
+        } else {
+          (theme == .aero ? Color(hex: 0x7FCDF6) : Color(hex: 0xF4C6EC))
+        }
       }
       LinearGradient(
-        colors: [.white.opacity(0.62), Y2K.glassTint.opacity(0.38)],
-        startPoint: UnitPoint(x: 0.41, y: 0),
-        endPoint: UnitPoint(x: 0.59, y: 1)
+        colors: style.glass,
+        startPoint: style.glassIsOpaque ? .top : UnitPoint(x: 0.41, y: 0),
+        endPoint: style.glassIsOpaque ? .bottom : UnitPoint(x: 0.59, y: 1)
       )
+      if style.gloss {
+        // Aero's glossy highlight across the top 38 %.
+        VStack(spacing: 0) {
+          RoundedRectangle(cornerRadius: 30 * mockupScale(size), style: .continuous)
+            .fill(LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0)], startPoint: .top, endPoint: .bottom))
+            .frame(height: size.height * 0.38)
+            .padding(.horizontal, 8 * mockupScale(size))
+            .padding(.top, 4 * mockupScale(size))
+          Spacer(minLength: 0)
+        }
+      }
       // 2 pt stroke centred on the edge: the outer half is clipped, leaving a 1 pt inner line.
       ContainerRelativeShape()
-        .stroke(Color.white.opacity(0.85), lineWidth: 2)
+        .stroke(style.edge, lineWidth: 2)
     }
   }
 

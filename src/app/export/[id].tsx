@@ -13,25 +13,17 @@ import { saveImageToPhotos } from '@/lib/save-wallpaper';
 import { getMixtape, sharedImageUri } from '@/lib/widget-bridge';
 import { getTheme } from '@/themes';
 
-/** Hook lines for the Y2K theme. The first one is from the mockup. */
-const HOOKS = [
-  'made my phone\nY2K again 🦋',
-  'POV: your iPhone\nbut it’s 2003 ✧',
-  'pink chrome\nhome screen 💿',
-  'it’s giving\nflip phone era ♡',
-  '',
-];
-
 export default function ExportScreen() {
   const { id, layout } = useLocalSearchParams<{ id: string; layout?: string }>();
   const theme = getTheme(id);
   const insets = useSafeAreaInsets();
   const postRef = useRef<View>(null);
-  const [hook, setHook] = useState(HOOKS[0]);
+  const [hook, setHook] = useState(theme?.hooks[0] ?? '');
   const [busy, setBusy] = useState<'save' | 'share'>();
   const [stage, setStage] = useState({ width: 0, height: 0 });
 
-  if (!theme?.wallpaper) return null;
+  if (!theme) return null;
+  const hooks = [...theme.hooks, ''];
   const saved = getMixtape();
   const mixtape = {
     title: saved.title,
@@ -94,9 +86,9 @@ export default function ExportScreen() {
           <TikTokPost
             ref={postRef}
             width={postWidth}
+            theme={theme}
             hook={hook}
             layout={Number(layout ?? 0)}
-            wallpaper={theme.wallpaper}
             mixtape={mixtape}
           />
         )}
@@ -107,7 +99,7 @@ export default function ExportScreen() {
         style={styles.chipRow}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.chips}>
-        {HOOKS.map((h) => (
+        {hooks.map((h) => (
           <Pressable
             key={h || 'none'}
             onPress={() => {

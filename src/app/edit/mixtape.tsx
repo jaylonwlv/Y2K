@@ -8,7 +8,15 @@ import { PinkButton } from '@/components/pink-button';
 import { WallpaperStage } from '@/components/wallpaper-stage';
 import { MixtapePreview } from '@/components/widgets/mixtape-preview';
 import { Geist } from '@/components/widgets/tokens';
-import { getMixtape, isPlayableLink, saveMixtape, sharedImageUri, type PickedImage } from '@/lib/widget-bridge';
+import {
+  getMixtape,
+  getWidgetTheme,
+  isPlayableLink,
+  saveMixtape,
+  sharedImageUri,
+  type PickedImage,
+} from '@/lib/widget-bridge';
+import { getThemeByKey } from '@/themes';
 
 export default function EditMixtape() {
   const initial = getMixtape();
@@ -17,6 +25,7 @@ export default function EditMixtape() {
   const [link, setLink] = useState(initial.link);
   const [cover, setCover] = useState<PickedImage>();
   const [saving, setSaving] = useState(false);
+  const theme = getWidgetTheme();
 
   const coverUri = cover?.uri ?? (initial.cover ? sharedImageUri('mixtape-cover.jpg', initial.v) : undefined);
 
@@ -58,8 +67,8 @@ export default function EditMixtape() {
       keyboardDismissMode="interactive"
       automaticallyAdjustKeyboardInsets>
       <Text style={styles.title}>Mixtape</Text>
-      <WallpaperStage height={230}>
-        <MixtapePreview size={184.4} title={title || ' '} subtitle={subtitle} coverUri={coverUri} />
+      <WallpaperStage height={230} wallpaper={getThemeByKey(theme).wallpaper}>
+        <MixtapePreview size={184.4} theme={theme} title={title || ' '} subtitle={subtitle} coverUri={coverUri} />
       </WallpaperStage>
       <PinkButton label={coverUri ? 'Change cover' : 'Choose cover'} variant="secondary" onPress={pickCover} />
 

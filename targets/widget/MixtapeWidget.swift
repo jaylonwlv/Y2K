@@ -28,6 +28,7 @@ struct MixtapeEntry: TimelineEntry {
   let cover: UIImage?
   let slot: GlassSlot
   let size: CGSize
+  var theme: AppTheme = .current
 }
 
 struct MixtapeProvider: AppIntentTimelineProvider {
@@ -58,12 +59,14 @@ struct MixtapeWidgetView: View {
 
   var body: some View {
     let k = mockupScale(entry.size)
+    let style = entry.theme.style
+    let isNight = entry.theme == .night
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .top, spacing: 0) {
         MixtapeCover(image: entry.cover, side: 78 * k)
         Spacer(minLength: 0)
         Heart()
-          .fill(Y2K.hotPink)
+          .fill(style.accent)
           .frame(width: 22 * k, height: 22 * k)
       }
       Spacer(minLength: 0)
@@ -85,16 +88,16 @@ struct MixtapeWidgetView: View {
         Spacer(minLength: 0)
         ZStack {
           Circle()
-            .fill(.white)
+            .fill(isNight ? style.accent : .white)
             .shadow(color: Color(hex: 0x962882, opacity: 0.25), radius: 4, x: 0, y: 3)
           PlayTriangle()
-            .fill(Y2K.hotPink)
+            .fill(isNight ? Color(hex: 0x15171B) : style.accent)
             .frame(width: 18 * k, height: 18 * k)
         }
         .frame(width: 44 * k, height: 44 * k)
       }
     }
-    .foregroundStyle(Y2K.ink)
+    .foregroundStyle(style.ink)
     .padding(.horizontal, 16 * k)
     .padding(.top, 16 * k)
     .padding(.bottom, 30 * k)
@@ -102,9 +105,9 @@ struct MixtapeWidgetView: View {
     .overlay(alignment: .bottom) {
       // Decorative progress bar. The widget can't know real playback progress.
       ZStack(alignment: .leading) {
-        Y2K.hotPink.opacity(0.15)
+        style.accent.opacity(0.15)
         GeometryReader { proxy in
-          Y2K.hotPink.frame(width: proxy.size.width * 0.36)
+          style.accent.frame(width: proxy.size.width * 0.36)
         }
       }
       .frame(height: 3)
@@ -166,7 +169,7 @@ private struct MixtapeWidgetBody: View {
   var body: some View {
     MixtapeWidgetView(entry: entry)
       .containerBackground(for: .widget) {
-        WallpaperGlass(slot: entry.slot, family: family, size: entry.size)
+        WallpaperGlass(slot: entry.slot, family: family, size: entry.size, theme: entry.theme)
       }
   }
 }

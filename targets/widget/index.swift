@@ -8,5 +8,6 @@ struct Y2KWidgets: WidgetBundle {
     MixtapeWidget()
     VibeWidget()
     ClockWidget()
+    WorldClocksWidget()
   }
 }

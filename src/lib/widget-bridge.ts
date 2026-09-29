@@ -3,6 +3,8 @@ import { File, Paths } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { Platform } from 'react-native';
 
+import type { ThemeKey } from '@/components/widgets/tokens';
+
 import appConfig from '../../app.json';
 
 /** Must match the App Group in app.json; the widget derives the same id from its bundle id. */
@@ -14,6 +16,7 @@ export const WidgetKind = {
   mixtape: 'Y2KMixtape',
   vibe: 'Y2KVibe',
   clock: 'Y2KClock',
+  worldClocks: 'Y2KWorldClocks',
 } as const;
 
 const storage = Platform.OS === 'ios' ? new ExtensionStorage(APP_GROUP) : null;
@@ -30,6 +33,19 @@ function readObject<T>(key: string): Partial<T> {
   } catch {
     return {};
   }
+}
+
+// MARK: Theme
+
+/** The theme every widget draws in (glass, colours, numbers). */
+export function getWidgetTheme(): ThemeKey {
+  const value = storage?.get('theme');
+  return value === 'aero' || value === 'night' ? value : 'y2k';
+}
+
+export function setWidgetTheme(theme: ThemeKey) {
+  storage?.set('theme', theme);
+  reloadWidgets();
 }
 
 // MARK: Calendar

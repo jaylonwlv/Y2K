@@ -5,7 +5,7 @@ import WidgetKit
 // Chrome digital clock on the same frosted glass as the calendar.
 
 struct ClockWidgetIntent: WidgetConfigurationIntent {
-  static var title: LocalizedStringResource { "Chrome Clock" }
+  static var title: LocalizedStringResource { "Clock" }
   static var description: IntentDescription {
     "Tell the widget where it sits so its glass lines up with your wallpaper."
   }
@@ -23,6 +23,7 @@ struct ClockEntry: TimelineEntry {
   let date: Date
   let slot: GlassSlot
   let size: CGSize
+  var theme: AppTheme = .current
 }
 
 struct ClockProvider: AppIntentTimelineProvider {
@@ -72,22 +73,36 @@ struct ClockWidgetView: View {
 
   var body: some View {
     let k = mockupScale(entry.size)
-    VStack(alignment: .leading, spacing: 0) {
-      Text(entry.date.formatted(.dateTime.weekday(.wide)).uppercased())
-        .font(Geist.bold(14 * k))
-        .tracking(0.84 * k)
-        .foregroundStyle(Y2K.hotPink)
-      Spacer(minLength: 0)
-      ChromeText(text: time, font: Geist.black(60 * k), tracking: -3 * k)
-        .frame(height: 62 * k)
-      Spacer(minLength: 0)
-      Text(detail)
-        .font(Geist.bold(13.5 * k))
-        .foregroundStyle(Y2K.ink)
+    let style = entry.theme.style
+    if entry.theme == .y2k {
+      VStack(alignment: .leading, spacing: 0) {
+        Text(entry.date.formatted(.dateTime.weekday(.wide)).uppercased())
+          .font(Geist.bold(14 * k))
+          .tracking(0.84 * k)
+          .foregroundStyle(style.accent)
+        Spacer(minLength: 0)
+        ThemedNumber(text: time, size: 60 * k, theme: entry.theme)
+          .frame(height: 62 * k)
+        Spacer(minLength: 0)
+        Text(detail)
+          .font(Geist.bold(13.5 * k))
+          .foregroundStyle(style.ink)
+      }
+      .lineLimit(1)
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+      .padding(18 * k)
+    } else {
+      // Aero and Night: the analog dial from the mockups.
+      let components = Calendar.current.dateComponents([.hour, .minute], from: entry.date)
+      AnalogFace(
+        hours: components.hour ?? 0,
+        minutes: components.minute ?? 0,
+        style: style.face,
+        numerals: entry.theme == .night
+      )
+      .frame(width: 148 * k, height: 148 * k)
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    .lineLimit(1)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .padding(18 * k)
   }
 }
 
@@ -98,8 +113,8 @@ struct ClockWidget: Widget {
     AppIntentConfiguration(kind: kind, intent: ClockWidgetIntent.self, provider: ClockProvider()) { entry in
       ClockWidgetBody(entry: entry)
     }
-    .configurationDisplayName("Chrome Clock")
-    .description("The time in big chrome numbers.")
+    .configurationDisplayName("Clock")
+    .description("Chrome digital time, or an analog dial in Aero and Aero Night.")
     .supportedFamilies([.systemSmall])
     .contentMarginsDisabled()
   }
@@ -112,7 +127,7 @@ private struct ClockWidgetBody: View {
   var body: some View {
     ClockWidgetView(entry: entry)
       .containerBackground(for: .widget) {
-        WallpaperGlass(slot: entry.slot, family: family, size: entry.size)
+        WallpaperGlass(slot: entry.slot, family: family, size: entry.size, theme: entry.theme)
       }
   }
 }

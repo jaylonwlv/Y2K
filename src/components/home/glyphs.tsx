@@ -21,7 +21,10 @@ export type GlyphName =
   | 'games'
   | 'saved'
   | 'shop'
-  | 'star';
+  | 'star'
+  | 'weather'
+  | 'wallet'
+  | 'calc';
 
 type Paint = { fill: string; contrast: string; petals: readonly string[] };
 
@@ -124,5 +127,27 @@ export const glyphs: Record<GlyphName, (p: Paint) => ReactNode> = {
   ),
   star: ({ fill }) => (
     <Path fill={fill} d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.3L12 17.1l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z" />
+  ),
+  weather: ({ fill }) => (
+    <G>
+      <Circle cx={9} cy={8.6} r={4} fill="#ffd23f" />
+      <Path fill={fill} d="M8.3 19.6h9.2a4 4 0 00.5-8 5.6 5.6 0 00-10.5 1.7 3.2 3.2 0 00.8 6.3z" />
+    </G>
+  ),
+  wallet: ({ fill, contrast }) => (
+    <G>
+      <Rect x={2.6} y={5} width={18.8} height={14} rx={2.8} fill={fill} />
+      <Rect x={2.6} y={8.2} width={18.8} height={2.6} fill={contrast} opacity={0.85} />
+      <Rect x={14.2} y={13} width={4.6} height={3} rx={1.2} fill={contrast} />
+    </G>
+  ),
+  calc: ({ fill, contrast }) => (
+    <G>
+      <Rect x={5} y={2.8} width={14} height={18.4} rx={2.6} fill={fill} />
+      <Rect x={7.2} y={5} width={9.6} height={3.6} rx={1} fill={contrast} />
+      {[11.5, 15, 18.3].flatMap((y) =>
+        [8.6, 12, 15.4].map((x) => <Circle key={`${x}-${y}`} cx={x} cy={y} r={1.25} fill={contrast} />)
+      )}
+    </G>
   ),
 };

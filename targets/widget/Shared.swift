@@ -14,6 +14,9 @@ enum SharedSettings {
 
   private static var defaults: UserDefaults? { UserDefaults(suiteName: appGroup) }
 
+  /// "y2k", "aero" or "night"; see AppTheme.
+  static var themeName: String { defaults?.string(forKey: "theme") ?? "" }
+
   static var calendarShowsEvents: Bool {
     guard let value = defaults?.object(forKey: "calendar.showEvents") else { return true }
     return (value as? Int ?? 1) != 0

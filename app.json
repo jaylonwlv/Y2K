@@ -61,6 +61,8 @@
         "expo-font",
         {
           "fonts": [
+            "./assets/fonts/Geist-Light.ttf",
+            "./assets/fonts/Geist-Regular.ttf",
             "./assets/fonts/Geist-Medium.ttf",
             "./assets/fonts/Geist-SemiBold.ttf",
             "./assets/fonts/Geist-Bold.ttf",

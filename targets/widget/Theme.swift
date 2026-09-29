@@ -47,6 +47,8 @@ enum Y2K {
 /// Geist (SIL Open Font License), bundled in targets/widget/ and listed in Info.plist.
 /// Fixed sizes: widgets should match the mockup exactly rather than follow Dynamic Type.
 enum Geist {
+  static func light(_ size: CGFloat) -> Font { .custom("Geist-Light", fixedSize: size) }
+  static func regular(_ size: CGFloat) -> Font { .custom("Geist-Regular", fixedSize: size) }
   static func medium(_ size: CGFloat) -> Font { .custom("Geist-Medium", fixedSize: size) }
   static func semibold(_ size: CGFloat) -> Font { .custom("Geist-SemiBold", fixedSize: size) }
   static func bold(_ size: CGFloat) -> Font { .custom("Geist-Bold", fixedSize: size) }
