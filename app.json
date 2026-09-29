@@ -53,8 +53,27 @@
       [
         "expo-media-library",
         {
-          "photosPermission": false,
+          "photosPermission": "Pick photos for your widgets.",
           "savePhotosPermission": "Save wallpapers to your photo library so you can set them as your wallpaper."
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Geist-Medium.ttf",
+            "./assets/fonts/Geist-SemiBold.ttf",
+            "./assets/fonts/Geist-Bold.ttf",
+            "./assets/fonts/Geist-Black.ttf"
+          ]
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Pick photos for your widgets.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ],
       "expo-asset",

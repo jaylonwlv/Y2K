@@ -6,12 +6,16 @@ Built with Expo (React Native), plus a native SwiftUI WidgetKit extension.
 **First time? Start with [docs/SETUP.md](docs/SETUP.md)**, which goes from this repo to your phone without a Mac.
 For day-to-day work, use the `development` build profile (dev client plus Metro). Use `production` for TestFlight.
 
-## What's in v0.1
+## What's in v0.2
 
 - **Y2K Pink Chrome** theme: an original holographic wallpaper (1320×2868) you can preview and save to Photos.
-- **Chrome Calendar** widget (small): today's date in chrome plus your next two events from the Calendar app, via EventKit.
-  The widget has frosted pink glass over a blurred crop of the same wallpaper, so it looks see-through.
-  *Edit Widget, then Position* chooses which part of the wallpaper it crops.
+- **Widgets**, all built to the mockup in `home2.html` (Geist font, chrome lettering, frosted pink glass):
+  - **Chrome Calendar** (small): today's date plus your next two events from the Calendar app.
+  - **Mixtape** (small): a song you pick, with your own cover. Tapping it opens the song link.
+  - **Vibe Card** (small and medium): your photo with a caption.
+  - **Chrome Clock** (small).
+- The glass is a blurred crop of the wallpaper. *Edit Widget › Side / Starts on icon row* tells a widget where it sits.
+  The grid comes from iOS 26 measurements (`src/lib/home-grid.ts`, `targets/widget/WallpaperGlass.swift`).
 - Frutiger Aero and Aero Night appear as "coming soon" cards.
 
 ## Layout
@@ -21,6 +25,7 @@ For day-to-day work, use the `development` build profile (dev client plus Metro)
 | `src/app/` | Screens (Expo Router). `(tabs)/index.tsx` Themes, `(tabs)/widgets.tsx` widget setup, `preview/[id].tsx` full-screen preview. |
 | `src/lib/widget-bridge.ts` | Writes settings to the shared App Group and reloads widgets. |
 | `targets/widget/` | The SwiftUI widget extension (linked into Xcode by `@bacons/apple-targets` at build time). |
+| `home2.html` | The visual spec: mockups with the measured iOS 26 grid. |
 | `tools/art/` | Original wallpaper, icon and splash art as HTML/CSS. `node tools/render-art.mjs` renders it to PNGs in `assets/` (needs Playwright). |
 | `eas.json`, `.eas/workflows/` | Cloud build and TestFlight submission. |
 

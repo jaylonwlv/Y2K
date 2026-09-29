@@ -8,6 +8,9 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="preview/[id]" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+        <Stack.Screen name="edit/mixtape" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="edit/vibe" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="play" options={{ animation: 'none' }} />
       </Stack>
     </>
   );

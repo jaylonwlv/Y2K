@@ -3,51 +3,67 @@ import SwiftUI
 import UIKit
 import WidgetKit
 
-/// Where the widget sits on the home screen. Widgets can't see the real wallpaper, so we
-/// crop the same wallpaper image at this position and frost it to fake transparency.
-enum WidgetSlot: String, AppEnum {
-  case topLeft, topRight, middleLeft, middleRight, bottomLeft, bottomRight
+// MARK: - Where the widget sits
 
-  static var typeDisplayRepresentation: TypeDisplayRepresentation { "Position" }
-  static var caseDisplayRepresentations: [WidgetSlot: DisplayRepresentation] {
-    [
-      .topLeft: "Top left", .topRight: "Top right",
-      .middleLeft: "Middle left", .middleRight: "Middle right",
-      .bottomLeft: "Bottom left", .bottomRight: "Bottom right",
-    ]
+enum WidgetSide: String, AppEnum {
+  case left, right
+
+  static var typeDisplayRepresentation: TypeDisplayRepresentation { "Side" }
+  static var caseDisplayRepresentations: [WidgetSide: DisplayRepresentation] {
+    [.left: "Left", .right: "Right"]
+  }
+}
+
+/// The icon row the widget's top edge starts on. A small widget covers two icon rows and
+/// the home screen has six, so it can start on rows 1–5.
+enum WidgetRow: String, AppEnum {
+  case row1, row2, row3, row4, row5
+
+  static var typeDisplayRepresentation: TypeDisplayRepresentation { "Starts on icon row" }
+  static var caseDisplayRepresentations: [WidgetRow: DisplayRepresentation] {
+    [.row1: "1 (top)", .row2: "2", .row3: "3", .row4: "4", .row5: "5"]
   }
 
-  var isRight: Bool { self == .topRight || self == .middleRight || self == .bottomRight }
-  var row: Int {
+  var index: Int {
     switch self {
-    case .topLeft, .topRight: 0
-    case .middleLeft, .middleRight: 1
-    case .bottomLeft, .bottomRight: 2
+    case .row1: 0
+    case .row2: 1
+    case .row3: 2
+    case .row4: 3
+    case .row5: 4
     }
   }
 }
 
+struct GlassSlot: Hashable {
+  var side: WidgetSide
+  var row: WidgetRow
+}
+
 enum HomeGrid {
-  /// Approximate frame of a widget on the home screen, in screen points.
-  /// Proportions measured from iPhone home screens (14/15/16 generation): the gap between
-  /// widgets is ~14% of a small widget, the first row starts ~10% down the screen and rows
-  /// repeat every ~1.25 small-widget heights. The frosted blur hides small errors.
-  static func frame(slot: WidgetSlot, family: WidgetFamily, size: CGSize, screen: CGSize) -> CGRect {
-    let small = family == .systemSmall ? size.width : size.height
-    let gap = small * 0.141
-    let left = (screen.width - 2 * small - gap) / 2
-    let x = (family == .systemSmall && slot.isRight) ? left + small + gap : left
-    let y = screen.height * 0.101 + CGFloat(slot.row) * small * 1.247
+  /// Frame of a widget on the home screen, in screen points.
+  /// Measured from iOS 26 on a 440 × 956 pt iPhone (home2.html): icon columns start at
+  /// x = 24 and repeat every 103.4 pt, the first row starts at y = 86 and rows repeat every
+  /// 103.4 pt. Other screen sizes are scaled proportionally.
+  static func frame(slot: GlassSlot, family: WidgetFamily, size: CGSize, screen: CGSize) -> CGRect {
+    let margin = screen.width * 24 / 440
+    let pitch = screen.width * 103.4 / 440
+    let top = screen.height * 86 / 956
+    let x = (family == .systemSmall && slot.side == .right) ? margin + 2 * pitch : margin
+    let y = top + CGFloat(slot.row.index) * pitch
     return CGRect(x: x, y: y, width: size.width, height: size.height)
   }
 }
 
-/// Frosted pink glass over the matching crop of the wallpaper.
+// MARK: - Frosted glass
+
+/// Frosted pink glass over the matching crop of the wallpaper (`.glassw` in the mockup):
+/// the crop stands in for backdrop-filter, since widgets can't see the real wallpaper.
 struct WallpaperGlass: View {
-  let imageName: String
-  let slot: WidgetSlot
+  let slot: GlassSlot
   let family: WidgetFamily
   let size: CGSize
+  var imageName = "wallpaper_y2k"
 
   @Environment(\.widgetRenderingMode) private var renderingMode
 
@@ -55,12 +71,19 @@ struct WallpaperGlass: View {
     ZStack {
       if renderingMode == .fullColor, let image = UIImage(named: imageName) {
         wallpaperCrop(image)
-          .blur(radius: 14, opaque: true)
+          .blur(radius: 18, opaque: true)
+          .saturation(1.3)
+      } else {
+        Color(hex: 0xF4C6EC)
       }
-      LinearGradient(colors: [Y2K.glassTop.opacity(0.62), Y2K.glassBottom.opacity(0.5)],
-                     startPoint: .top, endPoint: .bottom)
+      LinearGradient(
+        colors: [.white.opacity(0.62), Y2K.glassTint.opacity(0.38)],
+        startPoint: UnitPoint(x: 0.41, y: 0),
+        endPoint: UnitPoint(x: 0.59, y: 1)
+      )
+      // 2 pt stroke centred on the edge: the outer half is clipped, leaving a 1 pt inner line.
       ContainerRelativeShape()
-        .stroke(Color.white.opacity(0.85), lineWidth: 3)
+        .stroke(Color.white.opacity(0.85), lineWidth: 2)
     }
   }
 
@@ -78,4 +101,10 @@ struct WallpaperGlass: View {
       .frame(width: size.width, height: size.height, alignment: .topLeading)
       .clipped()
   }
+}
+
+/// Mockup widgets are 184.4 pt; scale type and spacing down on phones with smaller widgets.
+func mockupScale(_ size: CGSize) -> CGFloat {
+  guard size.width > 0 else { return 1 }
+  return min(1, min(size.width, size.height) / 184.4)
 }

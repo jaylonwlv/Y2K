@@ -6,17 +6,12 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { CalendarWidgetPreview } from '@/components/calendar-widget-preview';
+import { CalendarPreview } from '@/components/widgets/calendar-preview';
+import { MixtapePreview } from '@/components/widgets/mixtape-preview';
+import { cellOrigin, homeGrid } from '@/lib/home-grid';
 import { saveWallpaperToPhotos } from '@/lib/save-wallpaper';
+import { getMixtape, sharedImageUri } from '@/lib/widget-bridge';
 import { getTheme } from '@/themes';
-
-/** Same grid approximation the widget uses (targets/widget/WallpaperGlass.swift). */
-function smallWidgetFrame(width: number, height: number, row: number, right: boolean) {
-  const size = width * 0.395;
-  const gap = size * 0.141;
-  const left = (width - 2 * size - gap) / 2;
-  return { size, x: right ? left + size + gap : left, y: height * 0.101 + row * size * 1.247 };
-}
 
 export default function PreviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,7 +22,9 @@ export default function PreviewScreen() {
 
   if (!theme?.wallpaper) return null;
   const wallpaper = theme.wallpaper;
-  const calendar = smallWidgetFrame(width, height, 1, true);
+  // Layout 0 from home2.html: Mixtape at the top left, Calendar starting on row 4, right side.
+  const grid = homeGrid(width, height);
+  const mixtape = getMixtape();
 
   async function save() {
     setSaving(true);
@@ -48,8 +45,16 @@ export default function PreviewScreen() {
   return (
     <View style={styles.screen}>
       <Image source={wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
-      <View style={{ position: 'absolute', left: calendar.x, top: calendar.y }}>
-        <CalendarWidgetPreview size={calendar.size} />
+      <View style={[styles.cell, cellOrigin(grid, 0, 0)]}>
+        <MixtapePreview
+          size={grid.small}
+          title={mixtape.title}
+          subtitle={mixtape.subtitle}
+          coverUri={mixtape.cover ? sharedImageUri('mixtape-cover.jpg', mixtape.v) : undefined}
+        />
+      </View>
+      <View style={[styles.cell, cellOrigin(grid, 2, 3)]}>
+        <CalendarPreview size={grid.small} />
       </View>
 
       <View style={[styles.bar, { bottom: insets.bottom + 16 }]}>
@@ -90,6 +95,7 @@ function GlassButton({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F4C6EC' },
+  cell: { position: 'absolute' },
   bar: { position: 'absolute', left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between' },
   button: { paddingHorizontal: 22, paddingVertical: 14, borderRadius: 999, overflow: 'hidden' },
   fallback: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'white' },

@@ -13,6 +13,7 @@ const jobs = [
   // the widget blurs its background anyway, so full resolution would be wasted.
   { src: 'tools/art/y2k-pink-chrome.html', out: 'assets/wallpapers/widget/y2k-pink-chrome-widget.png', w: 1320, h: 2868, scale: 0.5 },
   { src: 'tools/art/icon.html', out: 'assets/images/icon.png', w: 1024, h: 1024 },
+  { src: 'tools/art/mixtape-cover.html', out: 'assets/images/mixtape-default-cover.png', w: 234, h: 234 },
   { src: 'tools/art/splash.html', out: 'assets/images/splash-icon.png', w: 400, h: 400, transparent: true },
 ];
 

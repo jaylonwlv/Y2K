@@ -1,22 +1,49 @@
 import * as Calendar from 'expo-calendar';
-import { useEffect, useState } from 'react';
-import { AppState, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { AppState, Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { CalendarWidgetPreview } from '@/components/calendar-widget-preview';
-import { getCalendarShowsEvents, reloadWidgets, setCalendarShowsEvents, WidgetKind } from '@/lib/widget-bridge';
+import { PinkButton } from '@/components/pink-button';
+import { WallpaperStage } from '@/components/wallpaper-stage';
+import { CalendarPreview } from '@/components/widgets/calendar-preview';
+import { ClockPreview } from '@/components/widgets/clock-preview';
+import { MixtapePreview } from '@/components/widgets/mixtape-preview';
+import { Geist } from '@/components/widgets/tokens';
+import { VibePreview } from '@/components/widgets/vibe-preview';
+import {
+  getCalendarShowsEvents,
+  getMixtape,
+  getVibe,
+  reloadWidgets,
+  setCalendarShowsEvents,
+  sharedImageUri,
+  WidgetKind,
+} from '@/lib/widget-bridge';
 
 const STEPS = [
-  'Go to your home screen and press and hold an empty spot until the icons jiggle.',
+  'On your home screen, press and hold an empty spot until the icons jiggle.',
   'Tap Edit (top left), then Add Widget, and search for “Y2K Home”.',
-  'Pick Chrome Calendar and drop it where you want it.',
-  'Press and hold the widget › Edit Widget › Position, and choose the spot it sits in. That lines its glass up with the wallpaper.',
+  'Pick a widget and drop it where you want it.',
+  'Press and hold the widget, then Edit Widget. Set Side and “Starts on icon row” to where it sits, so its glass lines up with the wallpaper.',
 ];
+
+const PREVIEW = 150;
 
 export default function WidgetsScreen() {
   const [permission, requestPermission] = Calendar.useCalendarPermissions();
   const [showEvents, setShowEvents] = useState(getCalendarShowsEvents);
+  const [mixtape, setMixtape] = useState(getMixtape);
+  const [vibe, setVibe] = useState(getVibe);
 
-  // Re-check after coming back from Settings, and refresh the widget so it picks up access.
+  // Editors save straight to the App Group; re-read when coming back to this tab.
+  useFocusEffect(
+    useCallback(() => {
+      setMixtape(getMixtape());
+      setVibe(getVibe());
+    }, [])
+  );
+
+  // Re-check after coming back from Settings, and refresh the calendar so it picks up access.
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') reloadWidgets(WidgetKind.calendar);
@@ -25,11 +52,11 @@ export default function WidgetsScreen() {
   }, []);
 
   async function connect() {
-    const result = permission?.canAskAgain === false ? null : await requestPermission();
-    if (!result) {
+    if (permission?.canAskAgain === false) {
       Linking.openSettings();
       return;
     }
+    await requestPermission();
     reloadWidgets(WidgetKind.calendar);
   }
 
@@ -39,24 +66,18 @@ export default function WidgetsScreen() {
     <ScrollView style={styles.screen} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
       <Text style={styles.title}>Widgets</Text>
 
-      <View style={styles.previewStage}>
-        <CalendarWidgetPreview size={170} />
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Chrome Calendar</Text>
-        <Text style={styles.body}>Today in big chrome numbers, plus your next two plans from the Calendar app.</Text>
-
+      <WidgetCard
+        name="Chrome Calendar"
+        blurb="Today in big chrome numbers, plus your next two plans from the Calendar app."
+        preview={<CalendarPreview size={PREVIEW} />}>
         {granted ? (
           <Text style={styles.ok}>✓ Calendar connected</Text>
         ) : (
-          <Pressable style={({ pressed }) => [styles.button, pressed && { opacity: 0.85 }]} onPress={connect}>
-            <Text style={styles.buttonText}>
-              {permission?.canAskAgain === false ? 'Allow in Settings' : 'Connect calendar'}
-            </Text>
-          </Pressable>
+          <PinkButton
+            label={permission?.canAskAgain === false ? 'Allow in Settings' : 'Connect calendar'}
+            onPress={connect}
+          />
         )}
-
         <View style={styles.toggleRow}>
           <Text style={styles.body}>Show events</Text>
           <Switch
@@ -68,10 +89,45 @@ export default function WidgetsScreen() {
             }}
           />
         </View>
-      </View>
+      </WidgetCard>
+
+      <WidgetCard
+        name="Mixtape"
+        blurb="A song you love with your own cover. Tap the widget to play it in Spotify, Apple Music or YouTube."
+        preview={
+          <MixtapePreview
+            size={PREVIEW}
+            title={mixtape.title}
+            subtitle={mixtape.subtitle}
+            coverUri={mixtape.cover ? sharedImageUri('mixtape-cover.jpg', mixtape.v) : undefined}
+          />
+        }>
+        <PinkButton label="Customize" onPress={() => router.push('/edit/mixtape')} />
+      </WidgetCard>
+
+      <WidgetCard
+        name="Vibe Card"
+        blurb="Your own photo with a caption. Comes in small and medium."
+        preview={
+          <VibePreview
+            width={PREVIEW}
+            height={PREVIEW}
+            caption={vibe.caption}
+            subcaption={vibe.subcaption}
+            photoUri={vibe.photo ? sharedImageUri('vibe-photo.jpg', vibe.v) : undefined}
+          />
+        }>
+        <PinkButton label="Customize" onPress={() => router.push('/edit/vibe')} />
+      </WidgetCard>
+
+      <WidgetCard
+        name="Chrome Clock"
+        blurb="The time in chrome on frosted glass. Nothing to set up."
+        preview={<ClockPreview size={PREVIEW} />}
+      />
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Add it to your home screen</Text>
+        <Text style={styles.cardTitle}>Add them to your home screen</Text>
         {STEPS.map((step, i) => (
           <View key={i} style={styles.step}>
             <Text style={styles.stepNumber}>{i + 1}</Text>
@@ -79,48 +135,48 @@ export default function WidgetsScreen() {
           </View>
         ))}
       </View>
-
-      <Text style={styles.footnote}>
-        Clock, Vibe Card and Mixtape widgets are coming next. Widgets can’t read what’s playing in other music apps, so
-        the Mixtape card shows a song you pick.
-      </Text>
     </ScrollView>
+  );
+}
+
+function WidgetCard({
+  name,
+  blurb,
+  preview,
+  children,
+}: {
+  name: string;
+  blurb: string;
+  preview: React.ReactNode;
+  children?: React.ReactNode;
+}) {
+  return (
+    <View style={styles.card}>
+      <WallpaperStage height={210}>{preview}</WallpaperStage>
+      <Text style={styles.cardTitle}>{name}</Text>
+      <Text style={styles.body}>{blurb}</Text>
+      {children}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#FBEFF8' },
   content: { padding: 20, paddingBottom: 120, gap: 16 },
-  title: { fontSize: 34, fontWeight: '800', color: '#3B0E33', marginTop: 8 },
-  previewStage: {
-    height: 240,
-    borderRadius: 32,
-    borderCurve: 'continuous',
-    alignItems: 'center',
-    justifyContent: 'center',
-    experimental_backgroundImage: 'linear-gradient(160deg, #b8f1e6 0%, #e3e6f4 30%, #efc6ec 70%, #e3b8f3 100%)',
-  },
+  title: { fontSize: 34, fontFamily: Geist.black, color: '#3B0E33', marginTop: 8 },
   card: {
     backgroundColor: 'white',
-    borderRadius: 24,
+    borderRadius: 28,
     borderCurve: 'continuous',
-    padding: 18,
+    padding: 14,
     gap: 10,
     boxShadow: '0 6px 20px rgba(150, 60, 140, 0.10)',
   },
-  cardTitle: { fontSize: 19, fontWeight: '800', color: '#3B0E33' },
-  body: { fontSize: 15, lineHeight: 21, color: '#5E3656' },
-  ok: { fontSize: 15, fontWeight: '700', color: '#1E9E5A' },
-  button: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderRadius: 999,
-    experimental_backgroundImage: 'linear-gradient(180deg, #FF8ACB 0%, #E3268F 100%)',
-  },
-  buttonText: { color: 'white', fontWeight: '800', fontSize: 15 },
+  cardTitle: { fontSize: 19, fontFamily: Geist.bold, color: '#3B0E33', marginTop: 4, marginHorizontal: 4 },
+  body: { fontSize: 15, lineHeight: 21, fontFamily: Geist.medium, color: '#5E3656', marginHorizontal: 4 },
+  ok: { fontSize: 15, fontFamily: Geist.bold, color: '#1E9E5A', marginHorizontal: 4 },
   toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  step: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  step: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   stepNumber: {
     width: 24,
     height: 24,
@@ -130,7 +186,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#FCE1F3',
     color: '#E3268F',
-    fontWeight: '800',
+    fontFamily: Geist.bold,
+    marginLeft: 4,
   },
-  footnote: { fontSize: 13, lineHeight: 18, color: '#9E6A93', paddingHorizontal: 4 },
 });
