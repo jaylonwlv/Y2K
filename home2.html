@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: Geist; src: url(geist-latin.woff2) format("woff2"); font-weight: 100 900; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: Geist, system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+  /* iPhone 16 Pro Max: 440 x 956 pt. Grid measured from real iOS 26 screenshots. */
+  .screen { position: relative; width: 440px; height: 956px; overflow: hidden; color: #fff; }
+  .bg { position: absolute; inset: 0; overflow: hidden; }
+  .island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; border-radius: 19px; background: #000; z-index: 9; }
+  .status { position: absolute; top: 0; left: 0; right: 0; height: 60px; z-index: 8; font-weight: 600; font-size: 17.5px; letter-spacing: -.01em; }
+  .status .t { position: absolute; left: 44px; top: 19px; }
+  .status .r { position: absolute; right: 34px; top: 22px; display: flex; gap: 7px; align-items: center; }
+  .cell { position: absolute; }
+  .ic { width: 81px; height: 81px; border-radius: 19px; position: relative; overflow: hidden; }
+  .ic svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .widget { position: absolute; border-radius: 34px; overflow: hidden; }
+  .search { position: absolute; left: 50%; transform: translateX(-50%); top: 783px; height: 30px; padding: 0 13px 0 11px; border-radius: 15px; display: flex; align-items: center; gap: 5px; font-size: 16px; font-weight: 500; z-index: 4; }
+  .dock { position: absolute; left: 12px; right: 12px; top: 837px; height: 103px; border-radius: 50px; z-index: 4; }
+
+  /* post (1080 x 1920) */
+  .post { position: relative; width: 1080px; height: 1920px; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+  .post .back { position: absolute; inset: -80px; filter: blur(42px) saturate(1.15); }
+  .post .back .screen { transform: scale(2.9); transform-origin: 0 0; }
+  .hook { position: relative; z-index: 2; margin-top: 110px; text-align: center; padding: 0 60px; }
+  .frame { position: relative; z-index: 2; margin-top: 56px; width: 720px; height: 1514px; border-radius: 112px; padding: 22px; background: #0b0b0d; box-shadow: 0 60px 120px rgba(0,0,0,.35), inset 0 0 0 4px #2c2c30; }
+  .frame .holder { width: 676px; height: 1470px; border-radius: 92px; overflow: hidden; }
+  .frame .holder .screen { transform: scale(1.53637); transform-origin: 0 0; }
+  .emo { font-family: "Noto Color Emoji", sans-serif; }
+
+  /* ================= AERO (day) ================= */
+  .aero .bg { background: linear-gradient(180deg, #0d6fcf 0%, #2e9be8 30%, #7fcdf6 52%, #d7f3ff 60%); }
+  .aero .cloud { position: absolute; border-radius: 50%; background: #fff; filter: blur(14px); opacity: .85; }
+  .aero .sunglow { position: absolute; left: 250px; top: 120px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, #fff 0 7%, rgba(255,255,240,.75) 14%, rgba(255,255,255,.25) 32%, transparent 62%); }
+  .aero .flare { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); background: radial-gradient(circle, rgba(255,255,255,.18), rgba(160,230,255,.08) 60%, transparent 70%); }
+  .aero .sea { position: absolute; left: 0; right: 0; top: 520px; height: 70px; background: linear-gradient(180deg, #bfeaff 0%, #5fbde8 100%); }
+  .aero .sea::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgba(255,255,255,.35) 0 1px, transparent 1px 7px); opacity: .6; }
+  .aero .hill { position: absolute; border-radius: 50%; }
+  .aero .grass { position: absolute; inset: 0; background: repeating-linear-gradient(95deg, rgba(20,90,10,.12) 0 1px, transparent 1px 4px); mix-blend-mode: multiply; }
+  .bub { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.75); background:
+      radial-gradient(circle at 30% 26%, rgba(255,255,255,.95) 0 7%, rgba(255,255,255,0) 16%),
+      radial-gradient(circle at 70% 78%, rgba(255,255,255,.55) 0 5%, rgba(255,255,255,0) 14%),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 55%, rgba(190,240,255,.35) 72%, rgba(255,200,250,.25) 86%, rgba(255,255,255,.5) 98%);
+      box-shadow: 0 8px 20px rgba(0,60,120,.12); }
+  .aero .ic { background: linear-gradient(170deg, rgba(255,255,255,.62) 0%, rgba(210,240,255,.35) 42%, var(--tint) 58%, var(--tint2) 100%); box-shadow: 0 6px 14px rgba(0,50,110,.28), inset 0 0 0 1px rgba(255,255,255,.75), inset 0 -2px 6px rgba(0,30,80,.18); }
+  .aero .ic::before { content: ""; position: absolute; left: 6px; right: 6px; top: 3px; height: 44%; border-radius: 15px 15px 50% 50% / 15px 15px 22px 22px; background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.08)); z-index: 2; }
+  .aero .ic svg { z-index: 1; filter: drop-shadow(0 1.5px 1.5px rgba(0,40,90,.45)); }
+  .aero { --cc: rgba(0,90,170,.85); }
+  .t-aqua { --tint: #19a7e6; --tint2: #0676bd; } .t-green { --tint: #45c23a; --tint2: #1f8f2a; } .t-blue { --tint: #3b7ee8; --tint2: #1d4fb8; }
+  .t-teal { --tint: #1bb9a6; --tint2: #0c847e; } .t-orange { --tint: #ffa42b; --tint2: #e0700e; } .t-sky { --tint: #6fcdf3; --tint2: #2a9fd8; }
+  .aero .glassw { background: linear-gradient(170deg, rgba(255,255,255,.72) 0%, rgba(225,245,255,.5) 45%, rgba(150,215,248,.45) 100%); box-shadow: 0 10px 28px rgba(0,50,110,.22), inset 0 0 0 1px rgba(255,255,255,.7); backdrop-filter: blur(18px) saturate(1.3); color: #063a66; }
+  .aero .glassw::before { content: ""; position: absolute; left: 8px; right: 8px; top: 4px; height: 38%; border-radius: 30px 30px 60% 60% / 30px 30px 26px 26px; background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0)); pointer-events: none; }
+  .aero .search { background: rgba(255,255,255,.35); backdrop-filter: blur(12px); color: #fff; box-shadow: inset 0 0 0 .5px rgba(255,255,255,.6); text-shadow: 0 1px 2px rgba(0,50,100,.35); }
+  .aero .dock { background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(230,250,255,.22)); backdrop-filter: blur(20px) saturate(1.4); box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), 0 10px 30px rgba(0,60,40,.15); }
+  .aero .status { color: #fff; text-shadow: 0 1px 2px rgba(0,40,90,.25); }
+
+  /* ================= Y2K ================= */
+  .y2k .bg { background: #f4c6ec; }
+  .y2k .holo { position: absolute; inset: -200px; background: conic-gradient(from 200deg at 45% 40%, #ffc4ea, #d9c2ff, #b7e3ff, #c8ffe9, #fff3b8, #ffc4ea, #e8b8ff, #ffc4ea); filter: blur(60px); }
+  .y2k .foil { position: absolute; inset: 0; background: repeating-linear-gradient(115deg, rgba(255,255,255,0) 0 14px, rgba(255,255,255,.28) 18px, rgba(255,255,255,0) 26px); mix-blend-mode: soft-light; }
+  .y2k .blob { position: absolute; border-radius: 50%; background: radial-gradient(circle at 34% 28%, #fff 0 5%, #f6efff 12%, #c9c1e4 32%, #8f89b6 55%, #efeaff 74%, #aaa3cf 92%); box-shadow: 0 16px 36px rgba(130,60,150,.28); }
+  .spark { position: absolute; background: #fff; clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%); filter: drop-shadow(0 0 4px #fff); }
+  .y2k { --cc: #f6f0ff; }
+  .y2k .ic { background: linear-gradient(145deg, #ffffff 0%, #f3ecff 18%, #c4bde0 40%, #ffffff 52%, #d4cdea 72%, #fbf9ff 100%); box-shadow: 0 6px 14px rgba(150,60,160,.28), inset 0 0 0 1px rgba(255,255,255,.95), inset 0 0 0 2.5px rgba(255,160,220,.28); }
+  .y2k .ic.hot { background: linear-gradient(180deg, #ffc0e6 0%, #ff5cb6 55%, #e3268f 100%); box-shadow: 0 6px 14px rgba(200,40,140,.35), inset 0 0 0 1px rgba(255,255,255,.7); }
+  .y2k .ic.hot { --cc: #ef3f9f; }
+  .y2k .ic::before { content: ""; position: absolute; left: 6px; right: 6px; top: 3px; height: 40%; border-radius: 15px 15px 50% 50% / 15px 15px 20px 20px; background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,0)); z-index: 2; }
+  .y2k .glassw { background: linear-gradient(170deg, rgba(255,255,255,.62), rgba(255,225,245,.38)); backdrop-filter: blur(18px) saturate(1.3); box-shadow: 0 10px 28px rgba(160,50,140,.18), inset 0 0 0 1px rgba(255,255,255,.85); color: #7d1a63; }
+  .y2k .search { background: rgba(255,255,255,.55); backdrop-filter: blur(12px); color: #6b1a55; box-shadow: inset 0 0 0 .5px rgba(255,255,255,.8); }
+  .y2k .dock { background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,220,245,.25)); backdrop-filter: blur(20px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.75); }
+  .y2k .status { color: #1a0a16; }
+  .chrome { background: linear-gradient(180deg, #ffffff 0%, #f5e8ff 30%, #a79ccc 48%, #ffffff 53%, #d9c9f2 76%, #9088b6 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 1.5px 0 #d23a95) drop-shadow(0 4px 8px rgba(120,20,100,.3)); }
+
+  /* ================= NIGHT (dark tinted, like iOS dark icons) ================= */
+  .night .bg { background: radial-gradient(700px 520px at 50% 115%, #0b4d5c, transparent 62%), linear-gradient(180deg, #01060f 0%, #03101f 45%, #031a24 100%); }
+  .aur { position: absolute; border-radius: 50%; filter: blur(46px); }
+  .star { position: absolute; width: 1.6px; height: 1.6px; border-radius: 50%; background: #fff; }
+  .night { --cc: #15181c; }
+  .night .ic { background: linear-gradient(180deg, #2a2d33 0%, #17191d 100%); box-shadow: 0 6px 14px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.12), inset 0 1px 0 rgba(255,255,255,.14); }
+  .night .ic svg { filter: drop-shadow(0 0 4px rgba(80,255,220,.45)); }
+  .night .glassw { background: linear-gradient(180deg, #25282e 0%, #15171b 100%); box-shadow: 0 10px 28px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.12); color: #fff; }
+  .night .search { background: rgba(30,32,38,.72); color: #fff; box-shadow: inset 0 0 0 .5px rgba(255,255,255,.12); }
+  .night .dock { background: rgba(28,30,36,.62); backdrop-filter: blur(20px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .night .status { color: #fff; }
+  .glow { text-shadow: 0 0 10px rgba(90,255,220,.7); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* ---------- geometry ---------- */
+const COL = [24, 127.4, 230.8, 334.2], ROW0 = 86, PITCH = 103.4;
+const at = (c, r) => `left:${COL[c]}px;top:${ROW0 + r * PITCH}px`;
+const W_S = 184.4, W_M = 391.2;
+
+/* ---------- filled glyphs (24 grid; "C" = contrast colour for holes/details) ---------- */
+const G = {
+  phone: `<path d="M6.6 2.8c.6-.4 1.4-.3 1.9.2l2.3 2.6c.5.6.5 1.4.1 2l-1.3 1.8c1 2.2 2.8 4 5 5l1.8-1.3c.6-.4 1.4-.4 2 .1l2.6 2.3c.5.5.6 1.3.2 1.9l-1.2 1.8c-.6.9-1.7 1.3-2.7 1.1C9.9 19.2 4.8 14.1 3.7 6.7c-.2-1 .2-2.1 1.1-2.7z" fill="F"/>`,
+  messages: `<path d="M12 3.2c-5.4 0-9.8 3.5-9.8 7.8 0 2.4 1.3 4.5 3.4 5.9-.2 1.3-.9 2.5-2 3.3 2 .1 3.8-.6 5.1-1.6 1.1.2 2.2.4 3.3.4 5.4 0 9.8-3.5 9.8-7.9S17.4 3.2 12 3.2z" fill="F"/>`,
+  camera: `<path fill-rule="evenodd" d="M4.2 7h2.9l1.5-2.1c.3-.5.9-.8 1.5-.8h3.8c.6 0 1.2.3 1.5.8L16.9 7h2.9A2.2 2.2 0 0122 9.2v8.6a2.2 2.2 0 01-2.2 2.2H4.2A2.2 2.2 0 012 17.8V9.2A2.2 2.2 0 014.2 7zM12 8.9a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" fill="F"/><circle cx="12" cy="13.4" r="2.7" fill="F" opacity=".8"/>`,
+  music: `<path d="M20 3.2v12.4a3.1 3.1 0 11-2-2.9V7.4l-8.3 1.9v8.3a3.1 3.1 0 11-2-2.9V5.8z" fill="F"/>`,
+  photos: `<g transform="translate(12 12)">${[0,45,90,135,180,225,270,315].map((a,i)=>`<ellipse cx="0" cy="-5.2" rx="2.9" ry="4.6" transform="rotate(${a})" fill="P${i}" opacity=".9"/>`).join("")}</g>`,
+  mail: `<rect x="2.5" y="5" width="19" height="14" rx="2.6" fill="F"/><path d="M3.4 6.6l8.6 6.2 8.6-6.2" fill="none" stroke="C" stroke-width="1.7" stroke-linejoin="round"/>`,
+  maps: `<path fill-rule="evenodd" d="M12 2.2a7.1 7.1 0 00-7.1 7.1c0 5.2 7.1 12.5 7.1 12.5s7.1-7.3 7.1-12.5A7.1 7.1 0 0012 2.2zm0 4.3a2.8 2.8 0 110 5.6 2.8 2.8 0 010-5.6z" fill="F"/>`,
+  notes: `<rect x="4" y="3" width="16" height="18" rx="2.6" fill="F"/><path d="M7.5 8.5h9M7.5 12h9M7.5 15.5h5.5" stroke="C" stroke-width="1.6" stroke-linecap="round"/>`,
+  weather: `<circle cx="9" cy="8.6" r="4" fill="#ffd23f"/><path d="M8.3 19.6h9.2a4 4 0 00.5-8 5.6 5.6 0 00-10.5 1.7 3.2 3.2 0 00.8 6.3z" fill="F"/>`,
+  clock: `<circle cx="12" cy="12" r="9.2" fill="F"/><path d="M12 6.6V12l3.6 2.2" stroke="C" stroke-width="1.8" stroke-linecap="round" fill="none"/>`,
+  settings: `<g transform="translate(12 12)">${[0,45,90,135,180,225,270,315].map(a=>`<rect x="-1.7" y="-9.6" width="3.4" height="4.4" rx=".9" transform="rotate(${a})" fill="F"/>`).join("")}<circle r="6.8" fill="F"/><circle r="2.8" fill="C"/></g>`,
+  browser: `<circle cx="12" cy="12" r="9.2" fill="F"/><path d="M12 12l4.6-4.6-2.4 6.9z" fill="#ff5a5f"/><path d="M12 12l-4.6 4.6 2.4-6.9z" fill="C"/>`,
+  heart: `<path d="M12 20.8s-8.1-5.2-8.1-11.1A4.8 4.8 0 0112 6.4a4.8 4.8 0 018.1 3.3c0 5.9-8.1 11.1-8.1 11.1z" fill="F"/>`,
+  games: `<path d="M7.2 7.8h9.6a5.1 5.1 0 015.1 5.1v.9a4 4 0 01-7 2.7l-.8-.8H9.9l-.8.8a4 4 0 01-7-2.7v-.9a5.1 5.1 0 015.1-5.1z" fill="F"/><path d="M7.4 10.6v3.6M5.6 12.4h3.6" stroke="C" stroke-width="1.6" stroke-linecap="round"/><circle cx="16.4" cy="11.4" r="1" fill="C"/><circle cx="18.2" cy="13.3" r="1" fill="C"/>`,
+  saved: `<path d="M6.5 3h11a1.8 1.8 0 011.8 1.8V21L12 17.4 4.7 21V4.8A1.8 1.8 0 016.5 3z" fill="F"/>`,
+  wallet: `<rect x="2.6" y="5" width="18.8" height="14" rx="2.8" fill="F"/><rect x="2.6" y="8.2" width="18.8" height="2.6" fill="C" opacity=".85"/><rect x="14.2" y="13" width="4.6" height="3" rx="1.2" fill="C"/>`,
+  shop: `<path d="M5.8 8.2h12.4l-1 12.2H6.8z" fill="F"/><path d="M9 9V7.3a3 3 0 016 0V9" fill="none" stroke="F" stroke-width="1.8"/>`,
+  star: `<path d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.3L12 17.1l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z" fill="F"/>`,
+  calc: `<rect x="5" y="2.8" width="14" height="18.4" rx="2.6" fill="F"/><rect x="7.2" y="5" width="9.6" height="3.6" rx="1" fill="C"/>${[[8.6,11.5],[12,11.5],[15.4,11.5],[8.6,15],[12,15],[15.4,15],[8.6,18.3],[12,18.3],[15.4,18.3]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.25" fill="C"/>`).join("")}`,
+  camera2: "",
+};
+/* Calendar is drawn with text so the date reads. */
+const calendarSvg = (day, top, num) => `<svg viewBox="0 0 24 24"><text x="12" y="8.6" text-anchor="middle" font-family="Geist" font-weight="700" font-size="3.6" fill="${top}">FRI</text><text x="12" y="19.4" text-anchor="middle" font-family="Geist" font-weight="300" font-size="12" fill="${num}">${day}</text></svg>`;
+
+const PAL = {
+  aero:  { F: "#ffffff", P: ["#ffffff","#e8fbff","#ffffff","#e8fbff","#ffffff","#e8fbff","#ffffff","#e8fbff"] },
+  y2k:   { F: "url(#gy)", P: ["#ff5cb6","#ff8fd0","#c77dff","#9fb4ff","#7fd8ff","#8ff0c8","#ffe27a","#ffab70"] },
+  night: { F: "url(#gn)", P: ["#5fffe0","#46e6ff","#3fb3ff","#6f8bff","#9f7bff","#ff7bd8","#ffd36b","#8dff9e"] },
+};
+const defs = `<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="gy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6fc0"/><stop offset="1" stop-color="#d9269a"/></linearGradient>
+  <linearGradient id="gn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dfff0"/><stop offset="1" stop-color="#3aa6ff"/></linearGradient>
+</defs></svg>`;
+
+function glyph(theme, name, hot = false) {
+  const pal = PAL[theme];
+  const F = theme === "y2k" && hot ? "#ffffff" : pal.F;
+  let s = G[name].replaceAll('"F"', `"${F}"`).replaceAll('"C"', '"var(--cc)"');
+  pal.P.forEach((c, i) => (s = s.replaceAll(`"P${i}"`, `"${theme === "y2k" && hot ? "#fff" : c}"`)));
+  return `<svg viewBox="-3.6 -3.6 31.2 31.2">${s}</svg>`;
+}
+const icon = (theme, name, pos, cls = "", hot = false) =>
+  `<div class="cell" style="${pos}"><div class="ic ${cls}">${name === "calendar" ? calendarSvg("2", theme === "night" ? "#ff5a5f" : theme === "y2k" && !hot ? "#e0339a" : theme === "aero" ? "#ff3b30" : "#fff", theme === "night" ? "#eafffb" : theme === "y2k" && !hot ? "#b0267e" : "#fff") : glyph(theme, name, hot)}</div></div>`;
+
+const statusBar = `<div class="island"></div><div class="status"><span class="t">9:41</span><span class="r">
+  <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="8.2" width="3.2" height="3.8" rx="1"/><rect x="5.2" y="5.6" width="3.2" height="6.4" rx="1"/><rect x="10.4" y="2.9" width="3.2" height="9.1" rx="1"/><rect x="15.6" y="0" width="3.2" height="12" rx="1"/></svg>
+  <svg width="17" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l1.2-1.3A10.3 10.3 0 008 .7C5.2.7 2.7 1.8.8 3.6L2 4.9A8.5 8.5 0 018 2.5zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.8 6.8 0 008 4.3c-1.8 0-3.4.7-4.6 1.8l1.2 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.4a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8z"/></svg>
+  <svg width="28" height="13" viewBox="0 0 28 13"><rect x=".5" y=".5" width="24" height="12" rx="4" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2.5" fill="currentColor"/><path d="M26 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" fill="currentColor" opacity=".4"/></span></div>`;
+const search = `<div class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>Search</div>`;
+const dock = (theme, names, clsFn = () => "") => `<div class="dock">${names.map((n, i) => { const [cls = "", hot = false] = [].concat(clsFn(i)); return icon(theme, n, `left:${COL[i] - 12}px;top:11px`, cls, hot); }).join("")}</div>`;
+
+let seed = 11; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+
+/* ================= 1. AERO ================= */
+function aero() {
+  const hr = (t, temp, sun) => `<div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="font-size:12.5px;font-weight:600;opacity:.75">${t}</span>
+    <svg width="22" height="22" viewBox="0 0 24 24">${sun ? '<circle cx="12" cy="12" r="5.5" fill="#ffc21a"/>' : '<circle cx="9" cy="9" r="4" fill="#ffc21a"/><path d="M8.3 19.6h9.2a4 4 0 00.5-8 5.6 5.6 0 00-10.5 1.7 3.2 3.2 0 00.8 6.3z" fill="#fff" stroke="#9fcde8" stroke-width=".6"/>'}</svg>
+    <span style="font-size:15px;font-weight:600">${temp}°</span></div>`;
+  const tick = (i) => `<i style="position:absolute;left:50%;top:7px;width:${i % 3 ? 2 : 3}px;height:${i % 3 ? 5 : 9}px;margin-left:-1px;background:#0b5a96;border-radius:1px;transform-origin:1px 69px;transform:rotate(${i * 30}deg)"></i>`;
+  return `<div class="screen aero">${defs}<div class="bg">
+      <i class="cloud" style="left:-60px;top:150px;width:260px;height:70px"></i><i class="cloud" style="left:40px;top:120px;width:160px;height:60px"></i>
+      <i class="cloud" style="left:260px;top:330px;width:260px;height:60px;opacity:.7"></i><i class="cloud" style="left:-40px;top:410px;width:220px;height:50px;opacity:.6"></i>
+      <i class="sunglow"></i><i class="flare" style="left:190px;top:330px;width:70px;height:70px"></i><i class="flare" style="left:140px;top:420px;width:30px;height:30px"></i>
+      <i class="sea"></i>
+      <i class="hill" style="left:-180px;top:560px;width:720px;height:520px;background:radial-gradient(ellipse at 42% 10%,#c9f77a 0 8%,#78d344 32%,#3aa22e 62%,#1f7a22 90%)"><i class="grass"></i></i>
+      <i class="hill" style="left:170px;top:620px;width:560px;height:460px;background:radial-gradient(ellipse at 38% 9%,#e0fc98 0 7%,#8ddd4c 30%,#44ad34 64%,#27862a 92%)"><i class="grass"></i></i>
+      ${[[58,262,54],[352,236,34],[30,500,26],[384,470,48],[300,700,30],[76,640,20],[212,560,16],[250,430,12]].map(([x,y,s])=>`<i class="bub" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px"></i>`).join("")}
+    </div>${statusBar}
+    <div class="widget glassw" style="${at(0,0)};width:${W_M}px;height:${W_S}px;padding:18px 20px">
+      <div style="display:flex;justify-content:space-between">
+        <div><div style="font-size:16px;font-weight:700">Sunny Bay <span style="font-size:11px">➤</span></div><div style="font-size:46px;font-weight:300;letter-spacing:-.03em;line-height:1.05">72°</div></div>
+        <div style="text-align:right"><svg width="26" height="26" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="#ffc21a"/></svg><div style="font-size:14px;font-weight:600">Sunny</div><div style="font-size:14px;font-weight:600;opacity:.75">H:78° L:64°</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px">${hr("Now",72,1)}${hr("11AM",74,1)}${hr("12PM",76,1)}${hr("1PM",77,0)}${hr("2PM",78,0)}${hr("3PM",77,1)}</div>
+    </div>
+    ${icon("aero","messages",at(0,2),"t-green")}${icon("aero","camera",at(1,2),"t-sky")}${icon("aero","photos",at(2,2),"t-aqua")}${icon("aero","music",at(3,2),"t-orange")}
+    ${icon("aero","mail",at(0,3),"t-blue")}${icon("aero","maps",at(1,3),"t-green")}${icon("aero","weather",at(2,3),"t-sky")}${icon("aero","notes",at(3,3),"t-orange")}
+    <div class="widget glassw" style="${at(0,4)};width:${W_S}px;height:${W_S}px;display:grid;place-items:center">
+      <div style="position:relative;width:148px;height:148px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff,#e6f7ff 55%,#b5e2fa);box-shadow:inset 0 0 0 3px rgba(255,255,255,.95),inset 0 -8px 16px rgba(0,90,160,.18),0 6px 14px rgba(0,70,140,.2)">
+        ${[...Array(12)].map((_, i) => tick(i)).join("")}
+        <i style="position:absolute;left:72px;top:40px;width:5px;height:36px;border-radius:3px;background:#073f6e;transform-origin:2.5px 34px;transform:rotate(-58deg)"></i>
+        <i style="position:absolute;left:73px;top:20px;width:3px;height:56px;border-radius:2px;background:#0b5a96;transform-origin:1.5px 54px;transform:rotate(246deg)"></i>
+        <i style="position:absolute;left:73.5px;top:18px;width:1.4px;height:62px;background:#ff8a00;transform-origin:.7px 56px;transform:rotate(150deg)"></i>
+        <i style="position:absolute;left:68px;top:68px;width:12px;height:12px;border-radius:50%;background:#ff8a00;box-shadow:inset 0 0 0 3px #fff"></i>
+      </div>
+    </div>
+    ${icon("aero","calendar",at(2,4),"t-aqua")}${icon("aero","clock",at(3,4),"t-teal")}
+    ${icon("aero","settings",at(2,5),"t-sky")}${icon("aero","heart",at(3,5),"t-teal")}
+    ${search}
+    ${dock("aero",["phone","browser","wallet","games"],(i)=>["t-green","t-blue","t-teal","t-orange"][i])}
+  </div>`;
+}
+
+/* ================= 2. Y2K (layout variants) ================= */
+const Y_APPS = [["messages",1],["clock",0],["photos",0],["music",1],["heart",1],["star",0],["mail",0],["shop",1],["notes",0],["games",1],["saved",1],["maps",0]];
+const Y_LAYOUTS = {
+  // v0 = original. Each layout: widget spots + 12 icon cells [col,row] in app order.
+  0: { music: [0,0], cal: [2,3], cells: [[2,0],[3,0],[2,1],[3,1],[0,2],[1,2],[2,2],[3,2],[0,3],[1,3],[0,4],[1,4]] },
+  1: { music: [2,0], cal: [0,3], cells: [[0,0],[1,0],[0,1],[1,1],[0,2],[1,2],[2,2],[3,2],[2,3],[3,3],[2,4],[3,4]] },
+  2: { music: [2,0], cal: [0,0], cells: [[0,2],[1,2],[2,2],[3,2],[0,3],[1,3],[2,3],[3,3],[0,4],[1,4],[2,4],[3,4]] },
+  3: { music: [0,2], cal: [2,2], cells: [[0,0],[1,0],[2,0],[3,0],[0,1],[1,1],[2,1],[3,1],[0,4],[1,4],[2,4],[3,4]] },
+};
+const yMusic = (pos) => `<div class="widget glassw" style="${pos};width:${W_S}px;height:${W_S}px;padding:16px">
+      <div style="position:relative;width:78px;height:78px;border-radius:12px;overflow:hidden;background:conic-gradient(from 30deg,#fff,#ffc2ec,#c9b8ff,#a8e6ff,#fff3b0,#ffc2ec,#fff);box-shadow:0 4px 10px rgba(150,40,130,.25)">
+        <i style="position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 0 2px,rgba(255,255,255,.4) 2px 3px)"></i>
+        <i style="position:absolute;left:28px;top:28px;width:22px;height:22px;border-radius:50%;background:#ffe3f5;border:4px solid #fff"></i></div>
+      <svg style="position:absolute;right:16px;top:16px" width="22" height="22" viewBox="0 0 24 24"><path d="M12 20.8s-8.1-5.2-8.1-11.1A4.8 4.8 0 0112 6.4a4.8 4.8 0 018.1 3.3c0 5.9-8.1 11.1-8.1 11.1z" fill="#e0339a"/></svg>
+      <div style="position:absolute;left:16px;bottom:30px"><div style="font-size:15px;font-weight:800;line-height:1.15;letter-spacing:.01em">BABY TEE</div><div style="font-size:15px;font-weight:800;line-height:1.15">SUMMER</div><div style="font-size:13.5px;font-weight:500;opacity:.7;margin-top:2px">y2k mixtape</div></div>
+      <div style="position:absolute;right:16px;bottom:30px;width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 3px 8px rgba(150,40,130,.25)"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M7 4.5l13 7.5-13 7.5z" fill="#e0339a"/></svg></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(224,51,154,.15)"><div style="width:36%;height:100%;background:#e0339a"></div></div>
+    </div>`;
+const yCal = (pos) => `<div class="widget glassw" style="${pos};width:${W_S}px;height:${W_S}px;padding:18px 18px">
+      <div style="font-size:14px;font-weight:800;letter-spacing:.06em;color:#e0339a">FRIDAY</div>
+      <div class="chrome" style="font-size:88px;font-weight:900;line-height:.95;letter-spacing:-.05em;margin-top:2px">2</div>
+      <div style="font-size:13.5px;font-weight:700;margin-top:6px">✧ girls night 8PM</div>
+      <div style="font-size:13px;font-weight:500;opacity:.65">nails at 11 ♡</div>
+    </div>`;
+function y2k(v = 0) {
+  const L = Y_LAYOUTS[v];
+  // Shuffle which app goes in which cell per variant so it doesn't read as the same page.
+  const order = [[0,1,2,3,4,5,6,7,8,9,10,11],[3,0,6,1,4,9,2,7,5,11,8,10],[4,1,0,7,2,6,3,9,11,5,10,8],[0,6,4,1,3,9,2,7,10,5,11,8]][v];
+  const icons = L.cells.map((c, i) => { const [name, hot] = Y_APPS[order[i]]; return icon("y2k", name, at(c[0], c[1]), hot ? "hot" : "", !!hot); }).join("");
+  return `<div class="screen y2k">${defs}<div class="bg"><i class="holo"></i><i class="foil"></i>
+      <i class="blob" style="left:-50px;top:470px;width:140px;height:140px"></i><i class="blob" style="left:330px;top:640px;width:120px;height:120px"></i><i class="blob" style="left:300px;top:40px;width:70px;height:70px;opacity:.9"></i>
+      ${[[60,470,18],[388,300,14],[205,720,12],[30,720,16],[400,560,20],[150,440,9]].map(([x,y,s])=>`<i class="spark" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px"></i>`).join("")}
+    </div>${statusBar}
+    ${yMusic(at(...L.music))}${yCal(at(...L.cal))}${icons}
+    ${search}
+    ${dock("y2k",["phone","browser","camera","settings"],(i)=>[["hot",true],["",false],["hot",true],["",false]][i])}
+  </div>`;
+}
+
+/* ================= 3. NIGHT ================= */
+function night() {
+  const clock = (city, off, h, m, lit) => {
+    const face = lit ? "background:radial-gradient(circle at 40% 35%,#d9fff8,#8ff5e6 60%,#4fd6d0)" : "background:#0e1114;box-shadow:inset 0 0 0 1px rgba(95,255,224,.35)";
+    const col = lit ? "#062a2c" : "#e8fffb";
+    const nums = [12,1,2,3,4,5,6,7,8,9,10,11].map((n, i) => { const a = i * 30 * Math.PI / 180; return `<span style="position:absolute;left:${39 + Math.sin(a) * 30 - 6}px;top:${39 - Math.cos(a) * 30 - 7}px;width:12px;text-align:center;font-size:10.5px;font-weight:600;color:${col}">${n}</span>`; }).join("");
+    const hand = (deg, len, w, c) => `<i style="position:absolute;left:${39 - w / 2}px;top:${39 - len}px;width:${w}px;height:${len}px;border-radius:${w}px;background:${c};transform-origin:${w / 2}px ${len}px;transform:rotate(${deg}deg)"></i>`;
+    return `<div style="display:flex;flex-direction:column;align-items:center;width:84px">
+      <div style="position:relative;width:78px;height:78px;border-radius:50%;${face}">${nums}${hand(h * 30 + m / 2, 20, 3, col)}${hand(m * 6, 30, 2, col)}${hand(200, 32, 1, "#ff8a00")}<i style="position:absolute;left:37px;top:37px;width:4px;height:4px;border-radius:50%;background:#ff8a00"></i></div>
+      <div style="font-size:14px;font-weight:600;margin-top:8px">${city}</div><div style="font-size:13px;font-weight:500;color:rgba(255,255,255,.55);line-height:1.25">Today</div><div style="font-size:13px;font-weight:500;color:rgba(255,255,255,.55)">${off}</div></div>`;
+  };
+  const stars = [...Array(46)].map(() => `<i class="star" style="left:${rnd() * 440}px;top:${rnd() * 520}px;opacity:${0.25 + rnd() * 0.7}"></i>`).join("");
+  return `<div class="screen night">${defs}<div class="bg">${stars}
+      <i class="aur" style="left:-90px;top:250px;width:460px;height:170px;background:#11d9ad;opacity:.75;transform:rotate(-20deg)"></i>
+      <i class="aur" style="left:150px;top:340px;width:420px;height:150px;background:#1b72ff;opacity:.7;transform:rotate(-26deg)"></i>
+      <i class="aur" style="left:-60px;top:600px;width:560px;height:200px;background:#0fa8b8;opacity:.45;transform:rotate(10deg)"></i>
+    </div>${statusBar}
+    <div class="widget glassw" style="${at(0,0)};width:${W_M}px;height:${W_S}px;display:flex;justify-content:space-around;align-items:center;padding:0 8px">
+      ${clock("Home","+0HRS",9,41,false)}${clock("New York","+3HRS",12,41,false)}${clock("London","+8HRS",5,41,false)}${clock("Tokyo","+16HRS",1,41,true)}
+    </div>
+    ${icon("night","messages",at(0,2))}${icon("night","calc",at(1,2))}${icon("night","photos",at(2,2))}${icon("night","mail",at(3,2))}
+    ${icon("night","clock",at(0,3))}${icon("night","music",at(1,3))}${icon("night","calendar",at(2,3))}${icon("night","games",at(3,3))}
+    ${icon("night","camera",at(0,4))}${icon("night","maps",at(1,4))}${icon("night","notes",at(2,4))}${icon("night","weather",at(3,4))}
+    ${icon("night","settings",at(0,5))}
+    ${search}
+    ${dock("night",["phone","browser","wallet","star"])}
+  </div>`;
+}
+
+const themes = { aero, y2k, night };
+const hooks = {
+  aero: `<div style="font-size:84px;font-weight:800;letter-spacing:-.03em;line-height:1.02;color:#fff;text-shadow:0 4px 18px rgba(0,50,110,.45)">my iPhone,<br/>but Frutiger Aero <span class="emo">🫧</span></div>`,
+  y2k: `<div style="font-size:86px;font-weight:900;letter-spacing:-.03em;line-height:1.02;color:#fff;text-shadow:0 3px 0 #e0339a,0 8px 22px rgba(140,30,120,.4)">made my phone<br/>Y2K again <span class="emo">🦋</span></div>`,
+  night: `<div class="glow" style="font-size:84px;font-weight:700;letter-spacing:-.03em;line-height:1.02;color:#eafffb">Aero, but<br/>after midnight</div>`,
+};
+const q = new URLSearchParams(location.search);
+const t = q.get("t") || "aero", mode = q.get("m") || "screen";
+const v = Number(q.get("v") || 0);
+if (mode === "screen") document.getElementById("root").innerHTML = t === "y2k" ? y2k(v) : themes[t]();
+else { const s = t === "y2k" ? y2k(v) : themes[t](); document.getElementById("root").innerHTML = `<div class="post"><div class="back">${s}</div><div class="hook">${hooks[t]}</div><div class="frame"><div class="holder">${s}</div></div></div>`; }
+</script>
+</body>
+</html>
