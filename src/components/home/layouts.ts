@@ -181,7 +181,7 @@ const AERO_LAYOUTS: HomeSetup[] = [
   },
 ];
 
-// MARK: Aero Night — the mockup's world clocks, then calendar + analog clock.
+// MARK: Aero Night — the mockup's world clocks, calendar + analog clock, then night weather.
 
 const NIGHT_DOCK: HomeApp[] = [{ name: 'phone' }, { name: 'browser' }, { name: 'wallet' }, { name: 'star' }];
 
@@ -212,6 +212,11 @@ const NIGHT_LAYOUTS: HomeSetup[] = [
       { kind: 'calendar', at: [0, 0] },
       { kind: 'clock', at: [2, 0] },
     ],
+    icons: NIGHT_GRID.map((name, i) => ({ app: { name }, at: [i % 4, 2 + Math.floor(i / 4)] as const })),
+    dock: NIGHT_DOCK,
+  },
+  {
+    widgets: [{ kind: 'weather', at: [0, 0] }],
     icons: NIGHT_GRID.map((name, i) => ({ app: { name }, at: [i % 4, 2 + Math.floor(i / 4)] as const })),
     dock: NIGHT_DOCK,
   },

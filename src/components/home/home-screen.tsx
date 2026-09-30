@@ -10,9 +10,11 @@ import { Geist, type ThemeKey } from '@/components/widgets/tokens';
 import { WeatherPreview } from '@/components/widgets/weather-preview';
 import { WorldClocksPreview } from '@/components/widgets/world-clocks-preview';
 import { cellOrigin, homeGrid, type HomeGrid } from '@/lib/home-grid';
+import { defaultMixtape } from '@/lib/widget-bridge';
 
 import { HOME_LAYOUTS, type HomeApp, type WidgetKind } from './layouts';
 import { ThemeIcon } from './theme-icon';
+import { gradient } from '@/lib/gradient';
 
 type Props = {
   width: number;
@@ -60,6 +62,22 @@ const CHROME: Record<
   },
 };
 
+/** Sample calendar lines and mixtape per theme, used until the user makes the mixtape their own. */
+const SAMPLE: Record<ThemeKey, { events: [string, string]; mixtape: { title: string; subtitle: string } }> = {
+  y2k: {
+    events: ['✧ girls night 8PM', 'nails at 11 ♡'],
+    mixtape: { title: 'Baby Tee Summer', subtitle: 'y2k mixtape' },
+  },
+  aero: {
+    events: ['✧ beach day 11AM', 'smoothies at 3'],
+    mixtape: { title: 'Blue Sky Days', subtitle: 'aero mixtape' },
+  },
+  night: {
+    events: ['✧ stargazing 11PM', 'lo-fi & tea ☾'],
+    mixtape: { title: 'Night Drive', subtitle: 'after hours mix' },
+  },
+};
+
 /**
  * A full themed home screen from home2.html, built on the real grid: wallpaper, widgets, icons,
  * search pill and dock.
@@ -81,6 +99,9 @@ export function HomeScreen({
   const setup = layouts[layout % layouts.length];
   const dockTop = height - 119 * s;
   const chrome = CHROME[theme];
+  const sample = SAMPLE[theme];
+  const untouched = mixtape.title === defaultMixtape.title && mixtape.subtitle === defaultMixtape.subtitle;
+  const tape = untouched ? { ...mixtape, ...sample.mixtape } : mixtape;
 
   // Each item pops in 35 ms after the previous one.
   let order = 0;
@@ -93,9 +114,9 @@ export function HomeScreen({
   const widget = (kind: WidgetKind) => {
     switch (kind) {
       case 'mixtape':
-        return <MixtapePreview size={grid.small} theme={theme} {...mixtape} />;
+        return <MixtapePreview size={grid.small} theme={theme} {...tape} />;
       case 'calendar':
-        return <CalendarPreview size={grid.small} theme={theme} date={date} />;
+        return <CalendarPreview size={grid.small} theme={theme} date={date} lines={sample.events} />;
       case 'clock':
         return <ClockPreview size={grid.small} theme={theme} date={date} />;
       case 'weather':
@@ -175,7 +196,7 @@ function Dock({
       style={[
         styles.dock,
         {
-          experimental_backgroundImage: chrome.dock,
+          ...gradient(chrome.dock),
           borderColor: chrome.dockEdge,
           top,
           left: 12 * s,

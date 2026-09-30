@@ -11,7 +11,6 @@ export function BigNumber({ text, size, theme }: Props) {
   if (style.numeral === 'chrome') return <ChromeText text={text} size={size} letterSpacing={-size * 0.05} />;
   return (
     <Text
-      numberOfLines={1}
       style={{
         fontFamily: Geist.light,
         fontSize: size * 0.95,

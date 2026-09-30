@@ -23,10 +23,10 @@ type Props = {
   mode?: 'frame' | 'screen';
 };
 
-/** 9:41 today, to match the status bar on the post. */
-function nineFortyOne() {
+/** 9:41 today, to match the status bar on the post: in the evening for Aero Night. */
+function nineFortyOne(evening: boolean) {
   const d = new Date();
-  d.setHours(9, 41, 0, 0);
+  d.setHours(evening ? 21 : 9, 41, 0, 0);
   return d;
 }
 
@@ -49,7 +49,11 @@ export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
         : { textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 * u };
 
   return (
-    <View ref={ref} collapsable={false} style={[styles.post, { width, height: 1920 * u, backgroundColor: theme.base }]}>
+    <View
+      ref={ref}
+      testID="tiktok-post"
+      collapsable={false}
+      style={[styles.post, { width, height: 1920 * u, backgroundColor: theme.base }]}>
       <Image
         source={theme.wallpaper}
         style={[StyleSheet.absoluteFill, { transform: [{ scale: 1.2 }] }]}
@@ -67,7 +71,7 @@ export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
             wallpaper={theme.wallpaper}
             layout={layout}
             mixtape={mixtape}
-            date={nineFortyOne()}
+            date={nineFortyOne(theme.key === 'night')}
             statusBar
           />
         </View>
@@ -107,7 +111,7 @@ export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
                 wallpaper={theme.wallpaper}
                 layout={layout}
                 mixtape={mixtape}
-                date={nineFortyOne()}
+                date={nineFortyOne(theme.key === 'night')}
                 statusBar
               />
             </View>

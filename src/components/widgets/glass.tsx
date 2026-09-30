@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { MOCKUP_WIDGET, WIDGET_STYLES, type ThemeKey } from './tokens';
+import { gradient } from '@/lib/gradient';
 
 type Props = {
   width: number;
@@ -21,7 +22,7 @@ export function Glass({ width, height, theme = 'y2k', children, style, backgroun
   return (
     <View style={[{ width, height, borderRadius: radius, boxShadow: glass.shadow }, styles.continuous, style]}>
       <View style={[StyleSheet.absoluteFill, styles.clip, { borderRadius: radius }]}>
-        {background ?? <View style={[StyleSheet.absoluteFill, { experimental_backgroundImage: glass.gradient }]} />}
+        {background ?? <View style={[StyleSheet.absoluteFill, gradient(glass.gradient)]} />}
         {glass.gloss && (
           // Aero's glossy top highlight (`.glassw::before`).
           <View
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
   clip: { overflow: 'hidden', borderCurve: 'continuous' },
   gloss: {
     position: 'absolute',
-    experimental_backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 100%)',
+    ...gradient('linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 100%)'),
   },
   edge: { borderWidth: 1, borderCurve: 'continuous' },
 });

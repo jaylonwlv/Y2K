@@ -14,6 +14,7 @@ import { Geist } from '@/components/widgets/tokens';
 import { saveWallpaperToPhotos } from '@/lib/save-wallpaper';
 import { getMixtape, setWidgetTheme, sharedImageUri } from '@/lib/widget-bridge';
 import { getTheme } from '@/themes';
+import { gradient } from '@/lib/gradient';
 
 export default function PreviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
   },
   fallback: { backgroundColor: 'rgba(255,255,255,0.75)', borderWidth: 1, borderColor: 'white' },
   button: { flex: 1, alignItems: 'center', gap: 3, paddingVertical: 8, borderRadius: 26 },
-  primary: { experimental_backgroundImage: 'linear-gradient(180deg, #FF8ACB 0%, #E3268F 100%)' },
+  primary: gradient('linear-gradient(180deg, #FF8ACB 0%, #E3268F 100%)'),
   label: { fontFamily: Geist.bold, fontSize: 12, color: '#6E1B5E' },
   hint: {
     fontFamily: Geist.medium,

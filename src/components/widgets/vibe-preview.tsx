@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Glass } from './glass';
 import { Geist, MOCKUP_WIDGET, WIDGET_STYLES, type ThemeKey } from './tokens';
+import { gradient } from '@/lib/gradient';
 
 type Props = {
   width?: number;
@@ -44,7 +45,7 @@ export function VibePreview({
             style={[
               styles.pill,
               {
-                experimental_backgroundImage: pill.gradient,
+                ...gradient(pill.gradient),
                 borderColor: pill.edge,
                 borderRadius: 16 * k,
                 paddingHorizontal: 12 * k,
@@ -69,10 +70,9 @@ export function VibePreview({
 }
 
 const styles = StyleSheet.create({
-  holo: {
-    experimental_backgroundImage:
-      'linear-gradient(135deg, #ffffff 0%, #ffc2ec 25%, #c9b8ff 45%, #a8e6ff 65%, #fff3b0 85%, #ffc2ec 100%)',
-  },
+  holo: gradient(
+    'linear-gradient(135deg, #ffffff 0%, #ffc2ec 25%, #c9b8ff 45%, #a8e6ff 65%, #fff3b0 85%, #ffc2ec 100%)'
+  ),
   sparkle: { alignSelf: 'flex-end', color: 'white', textShadowColor: 'white', textShadowRadius: 6 },
   pill: {
     alignSelf: 'flex-start',
