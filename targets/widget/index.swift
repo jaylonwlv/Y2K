@@ -9,5 +9,6 @@ struct Y2KWidgets: WidgetBundle {
     VibeWidget()
     ClockWidget()
     WorldClocksWidget()
+    WeatherWidget()
   }
 }

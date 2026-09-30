@@ -17,6 +17,7 @@ export const WidgetKind = {
   vibe: 'Y2KVibe',
   clock: 'Y2KClock',
   worldClocks: 'Y2KWorldClocks',
+  weather: 'Y2KWeather',
 } as const;
 
 const storage = Platform.OS === 'ios' ? new ExtensionStorage(APP_GROUP) : null;

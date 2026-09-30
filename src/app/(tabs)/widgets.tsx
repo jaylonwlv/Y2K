@@ -20,6 +20,7 @@ import { ClockPreview } from '@/components/widgets/clock-preview';
 import { MixtapePreview } from '@/components/widgets/mixtape-preview';
 import { Geist, type ThemeKey } from '@/components/widgets/tokens';
 import { VibePreview } from '@/components/widgets/vibe-preview';
+import { WeatherPreview } from '@/components/widgets/weather-preview';
 import { WorldClocksPreview } from '@/components/widgets/world-clocks-preview';
 import {
   getCalendarShowsEvents,
@@ -42,6 +43,9 @@ const STEPS = [
 ];
 
 const PREVIEW = 150;
+
+/** WeatherKit's required legal attribution page. */
+const WEATHER_LEGAL_URL = 'https://weatherkit.apple.com/legal-attribution.html';
 
 const SHORT_NAMES: Record<ThemeKey, string> = { y2k: 'Y2K', aero: 'Aero', night: 'Night' };
 
@@ -176,6 +180,19 @@ export default function WidgetsScreen() {
         preview={<WorldClocksPreview width={310} height={146} theme={theme} />}
       />
 
+      <WidgetCard
+        wallpaper={wallpaper}
+        name="Weather"
+        blurb="Live weather for a real city, updated every half hour. Small or medium; pick your city with Edit Widget."
+        preview={<WeatherPreview width={310} height={146} theme={theme} />}>
+        <Text style={styles.attribution}>
+          Weather data from Apple Weather.{' '}
+          <Text style={styles.link} onPress={() => Linking.openURL(WEATHER_LEGAL_URL)}>
+            Data sources
+          </Text>
+        </Text>
+      </WidgetCard>
+
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Add them to your home screen</Text>
         {STEPS.map((step, i) => (
@@ -228,6 +245,8 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: 19, fontFamily: Geist.bold, color: '#3B0E33', marginTop: 4, marginHorizontal: 4 },
   body: { fontSize: 15, lineHeight: 21, fontFamily: Geist.medium, color: '#5E3656', marginHorizontal: 4 },
+  attribution: { fontSize: 13, fontFamily: Geist.medium, color: '#8A4C7E', marginHorizontal: 4 },
+  link: { fontFamily: Geist.bold, color: '#E3268F', textDecorationLine: 'underline' },
   ok: { fontSize: 15, fontFamily: Geist.bold, color: '#1E9E5A', marginHorizontal: 4 },
   segments: { flexDirection: 'row', gap: 8 },
   segment: {

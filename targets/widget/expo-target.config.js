@@ -17,7 +17,9 @@ module.exports = (config) => ({
   },
   entitlements: {
     // Same App Group as the app, so the app can hand settings to the widget.
-    'com.apple.security.application-groups':
-      config.ios.entitlements['com.apple.security.application-groups'],
+    'com.apple.security.application-groups': config.ios.entitlements['com.apple.security.application-groups'],
+    // Live forecasts for the Weather widget. WeatherKit must also be ticked for this App ID
+    // (Capabilities and App Services) at developer.apple.com.
+    'com.apple.developer.weatherkit': true,
   },
 });

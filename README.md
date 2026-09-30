@@ -23,7 +23,8 @@ For day-to-day work, use the `development` build profile (dev client plus Metro)
   - **World Clocks** (medium): home plus three cities you pick; dials light up where it's daytime.
 - The glass is a blurred crop of the wallpaper (Night's is opaque). *Edit Widget › Side / Starts on icon row*
   tells a widget where it sits. The grid comes from iOS 26 measurements (`src/lib/home-grid.ts`).
-- The Aero weather card appears in previews and exports only. A live Weather widget needs WeatherKit.
+  - **Weather** (small, medium): live WeatherKit forecast for a city you pick with Edit Widget, refreshed every 30 minutes. Needs WeatherKit ticked (Capabilities and App Services) for `com.jaylonwlv.y2khome.widget` at developer.apple.com.
+- Previews and exports show sample weather for real cities (San Diego for Aero, Reykjavík for Aero Night).
 
 ## Layout
 
