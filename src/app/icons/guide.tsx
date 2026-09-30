@@ -23,11 +23,11 @@ const shot = (source: ImageSource, width: number, height: number) => ({ source, 
 const STEPS: Step[] = [
   {
     title: 'Save your icons',
-    body: 'On the Icons screen, tap Save all (or tap single icons). They land in your Photos, ready to use.',
+    body: 'On the Icons screen, tap Save all (or single icons). They land in your Photos. In this walkthrough we give Messages a new icon; it works the same for any app.',
   },
   {
     title: 'Open Shortcuts and tap +',
-    body: 'The + is in the top-right corner of the Shortcuts app.',
+    body: 'The + is in the top-right corner. This starts a new, empty shortcut.',
     image: shot(require('@/assets/guide/plus.jpg'), 900, 435),
     openShortcuts: true,
   },
@@ -37,13 +37,23 @@ const STEPS: Step[] = [
     image: shot(require('@/assets/guide/open-app.jpg'), 900, 660),
   },
   {
-    title: 'Tap the blue “App”',
-    body: 'Then pick the app you’re restyling from the list, for example Messages.',
+    title: 'Tap the blue word “App”',
+    body: 'This opens a list of every app on your phone.',
     image: shot(require('@/assets/guide/app.jpg'), 900, 308),
   },
   {
-    title: 'Rename it',
-    body: 'Tap the name at the very top › Rename, and type the app’s name. That becomes the label under the icon.',
+    title: 'Choose your app',
+    body: 'Scroll or use Search at the bottom, then tap the app you’re restyling. Here: Messages.',
+    image: shot(require('@/assets/guide/pick-app.jpg'), 900, 1800),
+  },
+  {
+    title: 'Check it says your app',
+    body: 'The shortcut now reads “Open Messages” (or the app you picked). Wrong app? Tap its name to change it.',
+    image: shot(require('@/assets/guide/picked.jpg'), 900, 294),
+  },
+  {
+    title: 'Name it',
+    body: 'Tap “Open App” at the very top › Rename. Type the app’s name (Messages) and tap Done. This is the label under your icon.',
     image: shot(require('@/assets/guide/rename.jpg'), 900, 576),
   },
   {
@@ -58,7 +68,7 @@ const STEPS: Step[] = [
   },
   {
     title: 'Pick your icon',
-    body: 'Tap the icon you saved for this app, then tap Choose.',
+    body: 'Tap the icon you saved for this app (the pink Messages bubble), then tap Choose.',
     image: shot(require('@/assets/guide/pick.jpg'), 900, 1068),
   },
   {
@@ -68,7 +78,7 @@ const STEPS: Step[] = [
   },
   {
     title: 'That’s it ✧',
-    body: 'Last thing: hide the old icon. Press and hold it › Remove App › Remove from Home Screen. It stays in your App Library.',
+    body: 'Last thing: hide the old icon. Press and hold it › Remove App › Remove from Home Screen. It stays in your App Library. Tap “Do another app” to restyle the next one.',
     image: shot(require('@/assets/guide/done.jpg'), 900, 1950),
   },
 ];
