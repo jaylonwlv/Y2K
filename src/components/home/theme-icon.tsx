@@ -18,6 +18,11 @@ type Props = {
   tint?: AeroTint;
   /** Date shown on the calendar icon. */
   date?: Date;
+  /**
+   * Full-bleed square with no rounded corners, edge or shadow: for icons saved to Photos and used
+   * as home-screen shortcut icons, which iOS rounds itself.
+   */
+  square?: boolean;
 };
 
 type Stops = [string, string][];
@@ -140,9 +145,21 @@ function glossPath(heightFraction: number, bottomRadius: number) {
 }
 
 /** Rounded tile inset by `inset` px, for the background and the edge strokes. */
-function Tile({ inset = 0, ...paint }: { inset?: number; fill?: string; stroke?: string; strokeWidth?: number }) {
+function Tile({
+  inset = 0,
+  square = false,
+  ...paint
+}: {
+  inset?: number;
+  square?: boolean;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+}) {
   const d = inset * PX;
-  return <Rect x={O + d} y={O + d} width={VB - 2 * d} height={VB - 2 * d} rx={(19 - inset) * PX} {...paint} />;
+  return (
+    <Rect x={O + d} y={O + d} width={VB - 2 * d} height={VB - 2 * d} rx={square ? 0 : (19 - inset) * PX} {...paint} />
+  );
 }
 
 /**
@@ -152,7 +169,15 @@ function Tile({ inset = 0, ...paint }: { inset?: number; fill?: string; stroke?:
  * - Aero: glossy tinted glass with a white glyph and a soft drop shadow.
  * - Night: dark tinted tile with a neon glyph.
  */
-export function ThemeIcon({ name, size, theme = 'y2k', hot = false, tint = 'aqua', date = new Date() }: Props) {
+export function ThemeIcon({
+  name,
+  size,
+  theme = 'y2k',
+  hot = false,
+  tint = 'aqua',
+  date = new Date(),
+  square = false,
+}: Props) {
   const id = useId().replace(/:/g, '');
   const glyphFill = `url(#g${id})`;
   const style = iconStyle(theme, hot, tint, glyphFill);
@@ -178,7 +203,12 @@ export function ThemeIcon({ name, size, theme = 'y2k', hot = false, tint = 'aqua
     );
 
   return (
-    <View style={{ width: size, height: size, borderRadius: (19 * size) / 81, boxShadow: style.shadow }}>
+    <View
+      style={
+        square
+          ? { width: size, height: size }
+          : { width: size, height: size, borderRadius: (19 * size) / 81, boxShadow: style.shadow }
+      }>
       <Svg width={size} height={size} viewBox={`${O} ${O} ${VB} ${VB}`}>
         <Defs>
           <LinearGradient id={`t${id}`} {...direction(style.angle)}>
@@ -205,8 +235,10 @@ export function ThemeIcon({ name, size, theme = 'y2k', hot = false, tint = 'aqua
           )}
         </Defs>
 
-        <Tile fill={`url(#t${id})`} />
-        {style.ring && <Tile inset={1.25} fill="none" stroke={style.ring} strokeWidth={2.5 * PX} />}
+        {/* Aero's tile is see-through at the top; shortcut icons need an opaque backing. */}
+        {square && theme === 'aero' && <Tile square fill="#7fcdf6" />}
+        <Tile square={square} fill={`url(#t${id})`} />
+        {style.ring && <Tile inset={1.25} square={square} fill="none" stroke={style.ring} strokeWidth={2.5 * PX} />}
         {/* Aero's drop shadow and Night's neon glow: the glyph again, offset or enlarged, underneath. */}
         {style.glyphShadow && name !== 'calendar' && <G transform={`translate(0 ${1.5 * PX})`}>{glyph(shadowPaint)}</G>}
         {style.glow && name !== 'calendar' && (
@@ -216,7 +248,7 @@ export function ThemeIcon({ name, size, theme = 'y2k', hot = false, tint = 'aqua
         )}
         {glyph(style.paint)}
         {style.gloss && <Path d={glossPath(style.gloss.height, style.gloss.bottom)} fill={`url(#s${id})`} />}
-        <Tile inset={0.5} fill="none" stroke={style.edge} strokeWidth={PX} />
+        {!square && <Tile inset={0.5} fill="none" stroke={style.edge} strokeWidth={PX} />}
       </Svg>
     </View>
   );

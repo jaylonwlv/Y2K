@@ -1,0 +1,223 @@
+import * as Haptics from 'expo-haptics';
+import { router, useLocalSearchParams } from 'expo-router';
+import * as Sharing from 'expo-sharing';
+import { useRef, useState } from 'react';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { captureRef } from 'react-native-view-shot';
+
+import { glyphUse, iconSets, type IconChoice } from '@/components/home/icon-sets';
+import { ThemeIcon } from '@/components/home/theme-icon';
+import { PinkButton } from '@/components/pink-button';
+import { Geist } from '@/components/widgets/tokens';
+import { saveImageToPhotos } from '@/lib/save-wallpaper';
+import { getTheme } from '@/themes';
+
+const STEPS = [
+  'Save the icons you want to Photos (tap one, or Save all).',
+  'Open the Shortcuts app, tap +, then Add Action and choose Open App. Pick the app this icon is for.',
+  'Tap the shortcut’s name at the top › Add to Home Screen.',
+  'Tap the small icon › Choose Photo, and pick the icon you saved. Type the app’s name, then tap Add.',
+  'Hide the original: press and hold its icon › Remove App › Remove from Home Screen. It stays in your App Library.',
+];
+
+/** Rendered size of the hidden stage icons are captured from; saved at 512 × 512. */
+const STAGE = 256;
+
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+export default function IconsScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const theme = getTheme(id);
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const stageRef = useRef<View>(null);
+  const [staged, setStaged] = useState<IconChoice>();
+  const [progress, setProgress] = useState<string>();
+
+  if (!theme) return null;
+  const sets = iconSets(theme.key);
+  // Screen padding 20 × 2, card padding 16 × 2, grid padding 12 × 2 less its -4 margins, three 14 pt gaps.
+  const cell = Math.floor((width - 40 - 32 - 16 - 3 * 14) / 4);
+
+  /** Draws one icon on the hidden stage and captures it as a 512 × 512 PNG. */
+  async function renderIcon(icon: IconChoice) {
+    setStaged(icon);
+    await nextFrame();
+    await nextFrame();
+    await new Promise((r) => setTimeout(r, 30));
+    return captureRef(stageRef, { format: 'png', width: 512, height: 512, result: 'tmpfile' });
+  }
+
+  async function saveMany(icons: IconChoice[]) {
+    try {
+      for (const [i, icon] of icons.entries()) {
+        setProgress(`Saving ${i + 1} of ${icons.length}…`);
+        await saveImageToPhotos(await renderIcon(icon));
+      }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert(
+        icons.length === 1 ? 'Saved to Photos ✧' : `${icons.length} icons saved ✧`,
+        'Now follow the steps at the top to put them on your home screen.'
+      );
+    } catch (error) {
+      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+    } finally {
+      setProgress(undefined);
+      setStaged(undefined);
+    }
+  }
+
+  async function share(icon: IconChoice) {
+    try {
+      const uri = await renderIcon(icon);
+      await Sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png' });
+    } catch (error) {
+      Alert.alert('Could not share', error instanceof Error ? error.message : String(error));
+    } finally {
+      setStaged(undefined);
+    }
+  }
+
+  function pick(icon: IconChoice) {
+    Haptics.selectionAsync();
+    Alert.alert(glyphUse(icon.name), undefined, [
+      { text: 'Save to Photos', onPress: () => saveMany([icon]) },
+      { text: 'Share…', onPress: () => share(icon) },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }
+
+  return (
+    <View style={styles.screen}>
+      {/* Hidden stage the icons are captured from, underneath the opaque list. */}
+      <View style={styles.stage} pointerEvents="none">
+        <View ref={stageRef} collapsable={false} style={{ width: STAGE, height: STAGE }}>
+          {staged && (
+            <ThemeIcon name={staged.name} hot={staged.hot} tint={staged.tint} theme={theme.key} size={STAGE} square />
+          )}
+        </View>
+      </View>
+
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <Text style={styles.title}>{theme.name} icons</Text>
+        <Pressable hitSlop={12} onPress={() => router.back()}>
+          <Text style={styles.done}>Done</Text>
+        </Pressable>
+      </View>
+
+      <ScrollView style={styles.list} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>How to use them</Text>
+          <Text style={styles.body}>
+            iOS only allows custom app icons through the Shortcuts app, one icon at a time. It takes about 30 seconds
+            per app. Shortcut icons don’t show notification badges.
+          </Text>
+          {STEPS.map((step, i) => (
+            <View key={i} style={styles.step}>
+              <Text style={styles.stepNumber}>{i + 1}</Text>
+              <Text style={[styles.body, { flex: 1 }]}>{step}</Text>
+            </View>
+          ))}
+          <PinkButton label="Open Shortcuts" variant="secondary" onPress={() => Linking.openURL('shortcuts://')} />
+        </View>
+
+        {sets.map((set) => (
+          <View key={set.title} style={styles.card}>
+            <View style={styles.setHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>{set.title}</Text>
+                <Text style={styles.body}>{set.blurb}</Text>
+              </View>
+              <PinkButton
+                label={`Save all ${set.icons.length}`}
+                onPress={() => saveMany(set.icons)}
+                disabled={!!progress}
+              />
+            </View>
+            <View style={[styles.grid, { backgroundColor: theme.base }]}>
+              {set.icons.map((icon) => (
+                <Pressable
+                  key={icon.name}
+                  onPress={() => pick(icon)}
+                  disabled={!!progress}
+                  style={({ pressed }) => [{ width: cell, alignItems: 'center', gap: 6 }, pressed && { opacity: 0.6 }]}>
+                  <ThemeIcon name={icon.name} hot={icon.hot} tint={icon.tint} theme={theme.key} size={cell - 8} />
+                  <Text numberOfLines={1} style={[styles.use, { color: theme.ink }]}>
+                    {glyphUse(icon.name)}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+
+      {progress && (
+        <View style={[styles.toast, { bottom: insets.bottom + 20 }]}>
+          <Text style={styles.toastText}>{progress}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: '#FBEFF8' },
+  stage: { position: 'absolute', top: 0, left: 0 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    backgroundColor: '#FBEFF8',
+  },
+  title: { fontFamily: Geist.black, fontSize: 24, color: '#3B0E33', flexShrink: 1 },
+  done: { fontFamily: Geist.bold, fontSize: 17, color: '#E3268F' },
+  list: { backgroundColor: '#FBEFF8' },
+  content: { padding: 20, gap: 16 },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    borderCurve: 'continuous',
+    padding: 16,
+    gap: 10,
+    boxShadow: '0 6px 20px rgba(150, 60, 140, 0.10)',
+  },
+  cardTitle: { fontSize: 19, fontFamily: Geist.bold, color: '#3B0E33' },
+  body: { fontSize: 15, lineHeight: 21, fontFamily: Geist.medium, color: '#5E3656' },
+  step: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  stepNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    textAlign: 'center',
+    lineHeight: 24,
+    overflow: 'hidden',
+    backgroundColor: '#FCE1F3',
+    color: '#E3268F',
+    fontFamily: Geist.bold,
+  },
+  setHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 14,
+    padding: 12,
+    marginHorizontal: -4,
+    borderRadius: 20,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+  },
+  use: { fontFamily: Geist.semibold, fontSize: 10.5, textAlign: 'center' },
+  toast: {
+    position: 'absolute',
+    alignSelf: 'center',
+    backgroundColor: '#1a1020',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 999,
+  },
+  toastText: { color: 'white', fontFamily: Geist.bold, fontSize: 14 },
+});

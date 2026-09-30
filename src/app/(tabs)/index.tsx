@@ -44,8 +44,15 @@ export default function ThemesScreen() {
               <Text style={styles.name}>{theme.name}</Text>
               <Text style={styles.tagline}>{theme.tagline}</Text>
             </View>
-            <View style={styles.cta}>
-              <Text style={styles.ctaText}>Preview</Text>
+            <View style={styles.actions}>
+              <View style={styles.cta}>
+                <Text style={styles.ctaText}>Preview</Text>
+              </View>
+              <Pressable
+                onPress={() => router.push({ pathname: '/icons/[id]', params: { id: theme.id } })}
+                style={({ pressed }) => [styles.cta, styles.ctaLight, pressed && { opacity: 0.7 }]}>
+                <Text style={[styles.ctaText, { color: '#1a1020' }]}>Icons</Text>
+              </Pressable>
             </View>
           </View>
           <View style={styles.mini} pointerEvents="none">
@@ -105,6 +112,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#1a1020',
   },
+  actions: { flexDirection: 'row', gap: 8 },
+  ctaLight: { backgroundColor: 'rgba(255,255,255,0.9)' },
   ctaText: { color: 'white', fontFamily: Geist.bold, fontSize: 15 },
   mini: {
     width: MINI_WIDTH,
