@@ -13,14 +13,6 @@ import { Geist } from '@/components/widgets/tokens';
 import { saveImageToPhotos } from '@/lib/save-wallpaper';
 import { getTheme } from '@/themes';
 
-const STEPS = [
-  'Save the icons you want to Photos (tap one, or Save all).',
-  'Open the Shortcuts app, tap +, then Add Action and choose Open App. Pick the app this icon is for.',
-  'Tap the shortcut’s name at the top › Add to Home Screen.',
-  'Tap the small icon › Choose Photo, and pick the icon you saved. Type the app’s name, then tap Add.',
-  'Hide the original: press and hold its icon › Remove App › Remove from Home Screen. It stays in your App Library.',
-];
-
 /** Rendered size of the hidden stage icons are captured from; saved at 512 × 512. */
 const STAGE = 256;
 
@@ -58,7 +50,11 @@ export default function IconsScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
         icons.length === 1 ? 'Saved to Photos ✧' : `${icons.length} icons saved ✧`,
-        'Now follow the steps at the top to put them on your home screen.'
+        'Next, put them on your home screen with the Shortcuts app. It takes about a minute per app.',
+        [
+          { text: 'Later', style: 'cancel' },
+          { text: 'Show me how', onPress: () => router.push('/icons/guide') },
+        ]
       );
     } catch (error) {
       Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
@@ -108,18 +104,15 @@ export default function IconsScreen() {
 
       <ScrollView style={styles.list} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 40 }]}>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>How to use them</Text>
+          <Text style={styles.cardTitle}>Put them on your home screen</Text>
           <Text style={styles.body}>
-            iOS only allows custom app icons through the Shortcuts app, one icon at a time. It takes about 30 seconds
-            per app. Shortcut icons don’t show notification badges.
+            iOS only lets you change app icons through the Shortcuts app. It takes about a minute per app, and we’ll
+            show you every tap. (Shortcut icons don’t show notification badges.)
           </Text>
-          {STEPS.map((step, i) => (
-            <View key={i} style={styles.step}>
-              <Text style={styles.stepNumber}>{i + 1}</Text>
-              <Text style={[styles.body, { flex: 1 }]}>{step}</Text>
-            </View>
-          ))}
-          <PinkButton label="Open Shortcuts" variant="secondary" onPress={() => Linking.openURL('shortcuts://')} />
+          <View style={styles.buttons}>
+            <PinkButton label="Show me how" onPress={() => router.push('/icons/guide')} />
+            <PinkButton label="Open Shortcuts" variant="secondary" onPress={() => Linking.openURL('shortcuts://')} />
+          </View>
         </View>
 
         {sets.map((set) => (
@@ -187,18 +180,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: 19, fontFamily: Geist.bold, color: '#3B0E33' },
   body: { fontSize: 15, lineHeight: 21, fontFamily: Geist.medium, color: '#5E3656' },
-  step: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  stepNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    textAlign: 'center',
-    lineHeight: 24,
-    overflow: 'hidden',
-    backgroundColor: '#FCE1F3',
-    color: '#E3268F',
-    fontFamily: Geist.bold,
-  },
+  buttons: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
   setHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   grid: {
     flexDirection: 'row',
