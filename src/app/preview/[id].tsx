@@ -96,7 +96,7 @@ export default function PreviewScreen() {
               }
             />
           </Glass>
-          <Text style={styles.hint}>Tap anywhere to hide the buttons</Text>
+          <Text style={styles.hint}>Tap to hide buttons · Posting to TikTok? Use Export, screenshots get cropped</Text>
         </Animated.View>
       )}
     </View>

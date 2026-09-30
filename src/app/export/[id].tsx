@@ -21,6 +21,7 @@ export default function ExportScreen() {
   const [hook, setHook] = useState(theme?.hooks[0] ?? '');
   const [busy, setBusy] = useState<'save' | 'share'>();
   const [stage, setStage] = useState({ width: 0, height: 0 });
+  const [mode, setMode] = useState<'frame' | 'screen'>('frame');
 
   if (!theme) return null;
   const hooks = [...theme.hooks, ''];
@@ -90,29 +91,53 @@ export default function ExportScreen() {
             hook={hook}
             layout={Number(layout ?? 0)}
             mixtape={mixtape}
+            mode={mode}
           />
         )}
       </View>
 
-      <ScrollView
-        horizontal
-        style={styles.chipRow}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chips}>
-        {hooks.map((h) => (
+      <View style={styles.modes}>
+        {(
+          [
+            ['frame', 'Phone frame'],
+            ['screen', 'Full screen'],
+          ] as const
+        ).map(([value, label]) => (
           <Pressable
-            key={h || 'none'}
+            key={value}
             onPress={() => {
               Haptics.selectionAsync();
-              setHook(h);
+              setMode(value);
             }}
-            style={[styles.chip, h === hook && styles.chipOn]}>
-            <Text style={[styles.chipText, h === hook && styles.chipTextOn]}>
-              {h ? h.replace('\n', ' ') : 'No text'}
-            </Text>
+            style={[styles.mode, mode === value && styles.modeOn]}>
+            <Text style={[styles.modeText, mode === value && styles.modeTextOn]}>{label}</Text>
           </Pressable>
         ))}
-      </ScrollView>
+      </View>
+
+      {mode === 'screen' ? (
+        <Text style={styles.hint}>The whole screen, uncropped. Add your text in TikTok.</Text>
+      ) : (
+        <ScrollView
+          horizontal
+          style={styles.chipRow}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chips}>
+          {hooks.map((h) => (
+            <Pressable
+              key={h || 'none'}
+              onPress={() => {
+                Haptics.selectionAsync();
+                setHook(h);
+              }}
+              style={[styles.chip, h === hook && styles.chipOn]}>
+              <Text style={[styles.chipText, h === hook && styles.chipTextOn]}>
+                {h ? h.replace('\n', ' ') : 'No text'}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
 
       <View style={styles.actions}>
         <PinkButton label={busy === 'save' ? 'Saving…' : 'Save to Photos'} onPress={save} disabled={!!busy} />
@@ -134,6 +159,17 @@ const styles = StyleSheet.create({
   title: { fontFamily: Geist.black, fontSize: 24, color: '#3B0E33' },
   close: { fontFamily: Geist.bold, fontSize: 17, color: '#E3268F' },
   stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  modes: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#F3D3EA',
+    borderRadius: 999,
+    padding: 3,
+  },
+  mode: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 999 },
+  modeOn: { backgroundColor: 'white' },
+  modeText: { fontFamily: Geist.semibold, fontSize: 14, color: '#8A4C7E' },
+  modeTextOn: { color: '#3B0E33' },
   chipRow: { flexGrow: 0 },
   chips: { paddingHorizontal: 20, gap: 8 },
   chip: {
