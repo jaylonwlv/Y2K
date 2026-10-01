@@ -31,6 +31,7 @@ export default function RootLayout() {
         <Stack.Screen name="export/[id]" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="icons/guide" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="icons/[id]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="install-icons/[id]" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="edit/mixtape" options={{ presentation: 'modal' }} />
         <Stack.Screen name="edit/vibe" options={{ presentation: 'modal' }} />
         <Stack.Screen name="play" options={{ animation: 'none' }} />

@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useRef, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 
@@ -106,12 +106,15 @@ export default function IconsScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Put them on your home screen</Text>
           <Text style={styles.body}>
-            iOS only lets you change app icons through the Shortcuts app. It takes about a minute per app, and we’ll
-            show you every tap. (Shortcut icons don’t show notification badges.)
+            Install all at once: pick your apps and they’re added in one go, in about 30 seconds. Or set them up one by
+            one with the Shortcuts app (about a minute per app). Neither shows notification badges.
           </Text>
           <View style={styles.buttons}>
-            <PinkButton label="Show me how" onPress={() => router.push('/icons/guide')} />
-            <PinkButton label="Open Shortcuts" variant="secondary" onPress={() => Linking.openURL('shortcuts://')} />
+            <PinkButton
+              label="Install all at once"
+              onPress={() => router.push({ pathname: '/install-icons/[id]', params: { id: theme.id } })}
+            />
+            <PinkButton label="One by one" variant="secondary" onPress={() => router.push('/icons/guide')} />
           </View>
         </View>
 

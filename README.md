@@ -14,6 +14,9 @@ For day-to-day work, use the `development` build profile (dev client plus Metro)
   - **Aero Night**: aurora and stars, dark tinted tiles with neon glyphs.
 - **Home-screen preview** of each theme on the real grid, with **Shuffle** between layouts and **Use theme**
   (switches every widget to the theme and saves its wallpaper to Photos).
+- **Icon packs**: save themed icons to Photos, then either **Install all at once** (one unsigned configuration
+  profile of Web Clips that open each app by URL scheme, handed to Safari by the local `modules/profile-server`
+  module; app list in `src/lib/app-links.ts`) or set them up one by one with the Shortcuts walkthrough.
 - **Export for TikTok**: a 1080×1920 post with theme-specific hook lines, saved to Photos or shared.
 - **Widgets** that restyle with the chosen theme (glass, colours, numbers), all built to `home2.html`:
   - **Calendar** (small): today's date plus your next two events.
@@ -21,9 +24,9 @@ For day-to-day work, use the `development` build profile (dev client plus Metro)
   - **Vibe Card** (small and medium): your photo with a caption.
   - **Clock** (small): chrome digital in Y2K, an analog dial in Aero and Aero Night.
   - **World Clocks** (medium): home plus three cities you pick; dials light up where it's daytime.
+  - **Weather** (small, medium): live WeatherKit forecast for a city you pick with Edit Widget, refreshed every 30 minutes. Needs WeatherKit ticked (Capabilities and App Services) for `com.jaylonwlv.y2khome.widget` at developer.apple.com.
 - The glass is a blurred crop of the wallpaper (Night's is opaque). *Edit Widget › Side / Starts on icon row*
   tells a widget where it sits. The grid comes from iOS 26 measurements (`src/lib/home-grid.ts`).
-  - **Weather** (small, medium): live WeatherKit forecast for a city you pick with Edit Widget, refreshed every 30 minutes. Needs WeatherKit ticked (Capabilities and App Services) for `com.jaylonwlv.y2khome.widget` at developer.apple.com.
 - Previews and exports show sample weather for real cities (San Diego for Aero, Reykjavík for Aero Night).
 
 ## Layout
