@@ -1,12 +1,12 @@
 import { Image } from 'expo-image';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { HomeScreen } from '@/components/home/home-screen';
 import { Geist } from '@/components/widgets/tokens';
 import { isThemeFree, usePlus } from '@/lib/plus';
-import { getMixtape, getWidgetTheme, sharedImageUri } from '@/lib/widget-bridge';
+import { getMixtape, getOnboarded, getWidgetTheme, sharedImageUri } from '@/lib/widget-bridge';
 import { themes } from '@/themes';
 
 const MINI_WIDTH = 132;
@@ -16,6 +16,11 @@ export default function ThemesScreen() {
   const [active, setActive] = useState(getWidgetTheme);
   const plus = usePlus();
   useFocusEffect(useCallback(() => setActive(getWidgetTheme()), []));
+
+  // First launch: the onboarding flow opens over the app once it's on screen.
+  useEffect(() => {
+    if (!getOnboarded()) router.push('/onboarding');
+  }, []);
 
   const saved = getMixtape();
   const mixtape = {

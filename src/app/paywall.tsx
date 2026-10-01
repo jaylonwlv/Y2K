@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingTop: 14,
     paddingHorizontal: 20,
-    ...gradient('linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(240,250,255,0.92) 22%, #F0FAFF 100%)'),
+    ...gradient('linear-gradient(180deg, rgba(240,250,255,0) 0%, #F0FAFF 16%, #F0FAFF 100%)'),
   },
   terms: { fontFamily: Geist.semibold, fontSize: 14, lineHeight: 19, color: INK, textAlign: 'center' },
   links: { flexDirection: 'row', alignItems: 'center', gap: 8 },

@@ -157,3 +157,14 @@ export function setPlusFlag(on: boolean) {
   storage?.set('plus', on ? 1 : 0);
   reloadWidgets();
 }
+
+// MARK: Onboarding
+
+/** Whether the first-run flow has been seen. Always true on web, where nothing is stored. */
+export function getOnboarded() {
+  return storage ? storage.get('onboarded') === '1' : true;
+}
+
+export function setOnboarded(done: boolean) {
+  storage?.set('onboarded', done ? 1 : 0);
+}

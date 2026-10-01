@@ -8,6 +8,7 @@ import { Geist } from '@/components/widgets/tokens';
 import { gradient } from '@/lib/gradient';
 import { LINKS } from '@/lib/links';
 import { restorePurchases, setPlus, usePlus } from '@/lib/plus';
+import { setOnboarded } from '@/lib/widget-bridge';
 
 export default function SettingsScreen() {
   const plus = usePlus();
@@ -79,6 +80,14 @@ export default function SettingsScreen() {
             <Text style={styles.rowLabel}>Plus (test)</Text>
             <Switch value={plus} trackColor={{ true: '#E3268F' }} onValueChange={setPlus} />
           </View>
+          <Row
+            symbol="arrow.counterclockwise"
+            label="Replay onboarding"
+            onPress={() => {
+              setOnboarded(false);
+              router.push('/onboarding');
+            }}
+          />
         </Section>
       )}
 
