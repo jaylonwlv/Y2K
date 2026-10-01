@@ -1,3 +1,4 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
 
@@ -52,6 +53,25 @@ enum AppTheme: String {
         pillEdge: .white.opacity(0.14),
         face: .night
       )
+    }
+  }
+}
+
+/// A widget's own look, picked in Edit Widget. "Match app" follows the theme chosen in the app.
+enum WidgetStyleChoice: String, AppEnum {
+  case app, y2k, aero, night
+
+  static var typeDisplayRepresentation: TypeDisplayRepresentation { "Style" }
+  static var caseDisplayRepresentations: [WidgetStyleChoice: DisplayRepresentation] {
+    [.app: "Match app", .y2k: "Y2K Pink Chrome", .aero: "Frutiger Aero", .night: "Aero Night"]
+  }
+
+  var theme: AppTheme {
+    switch self {
+    case .app: .current
+    case .y2k: .y2k
+    case .aero: .aero
+    case .night: .night
     }
   }
 }

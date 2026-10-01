@@ -17,6 +17,9 @@ struct CalendarWidgetIntent: WidgetConfigurationIntent {
   @Parameter(title: "Starts on icon row", default: .row4)
   var row: WidgetRow
 
+  @Parameter(title: "Style", default: .app)
+  var style: WidgetStyleChoice
+
   var slot: GlassSlot { GlassSlot(side: side, row: row) }
 }
 
@@ -50,11 +53,12 @@ struct CalendarProvider: AppIntentTimelineProvider {
   }
 
   func snapshot(for configuration: CalendarWidgetIntent, in context: Context) async -> CalendarEntry {
-    var entry = makeEntry(date: .now, slot: configuration.slot, size: context.displaySize)
+    let theme = configuration.style.theme
+    var entry = makeEntry(date: .now, slot: configuration.slot, size: context.displaySize, theme: theme)
     // The widget gallery should look alive even before calendar access is granted.
     if context.isPreview && (entry.access == .notGranted || entry.events.isEmpty) {
       entry = CalendarEntry(date: .now, events: Self.sampleEvents, access: .granted, showEvents: true,
-                            slot: configuration.slot, size: context.displaySize)
+                            slot: configuration.slot, size: context.displaySize, theme: theme)
     }
     return entry
   }
@@ -65,11 +69,12 @@ struct CalendarProvider: AppIntentTimelineProvider {
     let midnight = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: now)!)
 
     // One entry now, one each time an event ends (so the list moves on), one at midnight.
-    let first = makeEntry(date: now, slot: configuration.slot, size: context.displaySize)
+    let theme = configuration.style.theme
+    let first = makeEntry(date: now, slot: configuration.slot, size: context.displaySize, theme: theme)
     var dates = first.events.map(\.end).filter { $0 > now && $0 < midnight }
     dates.append(midnight)
     let entries = [first] + Set(dates).sorted().map {
-      makeEntry(date: $0, slot: configuration.slot, size: context.displaySize)
+      makeEntry(date: $0, slot: configuration.slot, size: context.displaySize, theme: theme)
     }
 
     // Re-read the calendar at least every 30 minutes to pick up edits.
@@ -77,13 +82,14 @@ struct CalendarProvider: AppIntentTimelineProvider {
     return Timeline(entries: entries, policy: .after(refresh))
   }
 
-  private func makeEntry(date: Date, slot: GlassSlot, size: CGSize) -> CalendarEntry {
+  private func makeEntry(date: Date, slot: GlassSlot, size: CGSize, theme: AppTheme) -> CalendarEntry {
     let showEvents = SharedSettings.calendarShowsEvents
     guard EKEventStore.authorizationStatus(for: .event) == .fullAccess else {
-      return CalendarEntry(date: date, events: [], access: .notGranted, showEvents: showEvents, slot: slot, size: size)
+      return CalendarEntry(date: date, events: [], access: .notGranted, showEvents: showEvents, slot: slot, size: size,
+                           theme: theme)
     }
     return CalendarEntry(date: date, events: Self.upcomingEvents(after: date), access: .granted,
-                         showEvents: showEvents, slot: slot, size: size)
+                         showEvents: showEvents, slot: slot, size: size, theme: theme)
   }
 
   /// Today's events that haven't finished yet, soonest first.

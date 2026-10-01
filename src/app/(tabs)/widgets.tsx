@@ -40,6 +40,7 @@ const STEPS = [
   'Tap Edit (top left), then Add Widget, and search for “Y2K Home”.',
   'Pick a widget and drop it where you want it.',
   'Press and hold the widget, then Edit Widget. Set Side and “Starts on icon row” to where it sits, so its glass lines up with the wallpaper.',
+  'Weather and Calendar also have a Style in Edit Widget: Y2K Pink Chrome, Frutiger Aero or Aero Night, or Match app to follow the switch above.',
 ];
 
 const PREVIEW = 150;

@@ -87,6 +87,9 @@ struct WeatherWidgetIntent: WidgetConfigurationIntent {
   @Parameter(title: "Starts on icon row", default: .row1)
   var row: WidgetRow
 
+  @Parameter(title: "Style", default: .app)
+  var style: WidgetStyleChoice
+
   var slot: GlassSlot { GlassSlot(side: side, row: row) }
 }
 
@@ -198,7 +201,8 @@ struct WeatherProvider: AppIntentTimelineProvider {
         // The gallery snapshot falls back to the sample; the timeline shows the problem.
       }
     }
-    return WeatherEntry(date: .now, report: report, slot: configuration.slot, size: context.displaySize)
+    return WeatherEntry(date: .now, report: report, slot: configuration.slot, size: context.displaySize,
+                        theme: configuration.style.theme)
   }
 
   func timeline(for configuration: WeatherWidgetIntent, in context: Context) async -> Timeline<WeatherEntry> {
@@ -210,7 +214,7 @@ struct WeatherProvider: AppIntentTimelineProvider {
       problem = weatherProblem(error)
     }
     let entry = WeatherEntry(date: .now, report: report, problem: problem, slot: configuration.slot,
-                             size: context.displaySize)
+                             size: context.displaySize, theme: configuration.style.theme)
     // Fresh forecast every half hour; retry sooner if it failed.
     let next = Date.now.addingTimeInterval(report == nil ? 15 * 60 : 30 * 60)
     return Timeline(entries: [entry], policy: .after(next))
