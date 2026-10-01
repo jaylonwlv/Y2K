@@ -79,6 +79,7 @@
         }
       ],
       "expo-asset",
+      "expo-notifications",
       "@bacons/apple-targets"
     ],
     "experiments": {

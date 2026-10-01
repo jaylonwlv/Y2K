@@ -10,7 +10,7 @@ import { glyphUse, iconSets, type IconChoice } from '@/components/home/icon-sets
 import { ThemeIcon } from '@/components/home/theme-icon';
 import { PinkButton } from '@/components/pink-button';
 import { Geist } from '@/components/widgets/tokens';
-import { requirePlus } from '@/lib/plus';
+import { FREE_ICONS, isIconFree, requirePlus, usePlus } from '@/lib/plus';
 import { saveImageToPhotos } from '@/lib/save-wallpaper';
 import { getTheme } from '@/themes';
 
@@ -27,9 +27,12 @@ export default function IconsScreen() {
   const stageRef = useRef<View>(null);
   const [staged, setStaged] = useState<IconChoice>();
   const [progress, setProgress] = useState<string>();
+  const plus = usePlus();
 
   if (!theme) return null;
   const sets = iconSets(theme.key);
+  const themeKey = theme.key;
+  const locked = (icon: IconChoice) => !plus && !isIconFree(themeKey, icon.name);
   // Screen padding 20 × 2, card padding 16 × 2, grid padding 12 × 2 less its -4 margins, three 14 pt gaps.
   const cell = Math.floor((width - 40 - 32 - 16 - 3 * 14) / 4);
 
@@ -43,7 +46,7 @@ export default function IconsScreen() {
   }
 
   async function saveMany(icons: IconChoice[]) {
-    if (!theme || !requirePlus('theme', theme.key)) return;
+    if (icons.some(locked) && !requirePlus('icons')) return;
     try {
       for (const [i, icon] of icons.entries()) {
         setProgress(`Saving ${i + 1} of ${icons.length}…`);
@@ -67,7 +70,7 @@ export default function IconsScreen() {
   }
 
   async function share(icon: IconChoice) {
-    if (!theme || !requirePlus('theme', theme.key)) return;
+    if (locked(icon) && !requirePlus('icons')) return;
     try {
       const uri = await renderIcon(icon);
       await Sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png' });
@@ -80,6 +83,10 @@ export default function IconsScreen() {
 
   function pick(icon: IconChoice) {
     Haptics.selectionAsync();
+    if (locked(icon)) {
+      requirePlus('icons');
+      return;
+    }
     Alert.alert(glyphUse(icon.name), undefined, [
       { text: 'Save to Photos', onPress: () => saveMany([icon]) },
       { text: 'Share…', onPress: () => share(icon) },
@@ -125,6 +132,14 @@ export default function IconsScreen() {
           </View>
         </View>
 
+        {!plus && (
+          <Text style={styles.freeNote}>
+            {isIconFree(themeKey, FREE_ICONS[0])
+              ? `${FREE_ICONS.length} starter icons are free. Every icon in every style comes with Plus ✧`
+              : 'These icons come with Plus ✧ Tap any of them to see what’s included.'}
+          </Text>
+        )}
+
         {sets.map((set) => (
           <View key={set.title} style={styles.card}>
             <View style={styles.setHeader}>
@@ -133,7 +148,7 @@ export default function IconsScreen() {
                 <Text style={styles.body}>{set.blurb}</Text>
               </View>
               <PinkButton
-                label={`Save all ${set.icons.length}`}
+                label={plus ? `Save all ${set.icons.length}` : `Save all ${set.icons.length} ✧`}
                 onPress={() => saveMany(set.icons)}
                 disabled={!!progress}
               />
@@ -145,7 +160,14 @@ export default function IconsScreen() {
                   onPress={() => pick(icon)}
                   disabled={!!progress}
                   style={({ pressed }) => [{ width: cell, alignItems: 'center', gap: 6 }, pressed && { opacity: 0.6 }]}>
-                  <ThemeIcon name={icon.name} hot={icon.hot} tint={icon.tint} theme={theme.key} size={cell - 8} />
+                  <View>
+                    <ThemeIcon name={icon.name} hot={icon.hot} tint={icon.tint} theme={theme.key} size={cell - 8} />
+                    {locked(icon) && (
+                      <View style={styles.lock}>
+                        <Text style={styles.lockText}>✧</Text>
+                      </View>
+                    )}
+                  </View>
                   <Text numberOfLines={1} style={[styles.use, { color: theme.ink }]}>
                     {glyphUse(icon.name)}
                   </Text>
@@ -202,6 +224,21 @@ const styles = StyleSheet.create({
     borderCurve: 'continuous',
     overflow: 'hidden',
   },
+  lock: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E3268F',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  lockText: { color: 'white', fontFamily: Geist.bold, fontSize: 11 },
+  freeNote: { fontFamily: Geist.semibold, fontSize: 14, lineHeight: 20, color: '#8A4C7E', textAlign: 'center' },
   use: { fontFamily: Geist.semibold, fontSize: 10.5, textAlign: 'center' },
   toast: {
     position: 'absolute',

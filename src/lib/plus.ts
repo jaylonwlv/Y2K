@@ -1,7 +1,11 @@
 import { router } from 'expo-router';
 import { useSyncExternalStore } from 'react';
 
+import type { GlyphName } from '@/components/home/glyphs';
 import type { ThemeKey } from '@/components/widgets/tokens';
+
+import type { Plan } from './plans';
+import { cancelTrialReminder } from './trial-reminder';
 
 import { getPlusFlag, setPlusFlag } from './widget-bridge';
 
@@ -10,15 +14,20 @@ import { getPlusFlag, setPlusFlag } from './widget-bridge';
  * flipped by the developer toggle in Settings; the paywall will flip it after a purchase or restore.
  */
 
-/** What's in Plus. Everything else (the Y2K theme, its icons, Calendar, Clock, Mixtape) is free. */
+/** What's in Plus. Everything else (the Y2K theme, four starter icons, Calendar, Clock, Mixtape) is free. */
 export type PlusFeature =
   | 'theme' // Aero and Aero Night: use the theme, its widget style, its icons
   | 'widget' // Vibe, Weather and World Clocks widgets
+  | 'icons' // Icons beyond the free starter set
   | 'installIcons' // Install all at once
   | 'export'; // Exports without the watermark
 
 export const FREE_THEME: ThemeKey = 'y2k';
 export const isThemeFree = (theme: ThemeKey) => theme === FREE_THEME;
+
+/** The free starter icons: these four glyphs in the free theme. Every other icon is Plus. */
+export const FREE_ICONS: readonly GlyphName[] = ['messages', 'music', 'camera', 'photos'];
+export const isIconFree = (theme: ThemeKey, glyph: GlyphName) => isThemeFree(theme) && FREE_ICONS.includes(glyph);
 
 let plus = getPlusFlag();
 const listeners = new Set<() => void>();
@@ -29,6 +38,7 @@ export function isPlus() {
 
 export function setPlus(on: boolean) {
   plus = on;
+  if (!on) cancelTrialReminder();
   setPlusFlag(on);
   listeners.forEach((listener) => listener());
 }
@@ -56,4 +66,16 @@ export function requirePlus(feature: PlusFeature, theme?: ThemeKey) {
  */
 export async function restorePurchases() {
   return plus;
+}
+
+/**
+ * Buys a plan. In-app purchases aren't wired up yet: development builds simulate a successful
+ * purchase so the paywall can be tried end to end; other builds say it's coming.
+ */
+export async function purchase(plan: Plan): Promise<boolean> {
+  if (__DEV__) {
+    setPlus(true);
+    return true;
+  }
+  throw new Error(`${plan.title} plans arrive in the next update.`);
 }
