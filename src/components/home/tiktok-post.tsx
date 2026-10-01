@@ -21,6 +21,8 @@ type Props = {
    * (about 9:19.5), TikTok shows it without cropping the top and bottom.
    */
   mode?: 'frame' | 'screen';
+  /** "made with Y2K Home" pill along the bottom, on free exports. */
+  watermark?: boolean;
 };
 
 /** 9:41 today, to match the status bar on the post: in the evening for Aero Night. */
@@ -35,7 +37,7 @@ function nineFortyOne(evening: boolean) {
  * home screen in a phone frame. Every size is in 1080-wide post pixels, scaled by `u`.
  */
 export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
-  { width, theme, hook, layout, mixtape, mode = 'frame' },
+  { width, theme, hook, layout, mixtape, mode = 'frame', watermark },
   ref
 ) {
   const u = width / 1080;
@@ -118,6 +120,16 @@ export const TikTokPost = forwardRef<View, Props>(function TikTokPost(
           </View>
         </>
       )}
+
+      {watermark && (
+        <View
+          style={[
+            styles.watermark,
+            { bottom: 12 * u, paddingHorizontal: 18 * u, paddingVertical: 7 * u, borderRadius: 999 },
+          ]}>
+          <Text style={[styles.watermarkText, { fontSize: 22 * u }]}>made with Y2K Home ✧</Text>
+        </View>
+      )}
     </View>
   );
 });
@@ -127,6 +139,8 @@ const styles = StyleSheet.create({
   veil: { backgroundColor: 'rgba(255,255,255,0.1)' },
   veilDark: { backgroundColor: 'rgba(0,0,0,0.15)' },
   hook: { textAlign: 'center' },
+  watermark: { position: 'absolute', alignSelf: 'center', backgroundColor: 'rgba(20, 10, 30, 0.45)' },
+  watermarkText: { fontFamily: Geist.bold, color: 'white', letterSpacing: 0.2 },
   screenShadow: { boxShadow: '0 0 40px rgba(20, 20, 60, 0.35)' },
   frame: {
     backgroundColor: '#0b0b0d',

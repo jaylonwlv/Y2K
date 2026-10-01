@@ -12,6 +12,7 @@ import { HomeScreen } from '@/components/home/home-screen';
 import { HOME_LAYOUTS } from '@/components/home/layouts';
 import { Geist } from '@/components/widgets/tokens';
 import { saveWallpaperToPhotos } from '@/lib/save-wallpaper';
+import { requirePlus } from '@/lib/plus';
 import { getMixtape, setWidgetTheme, sharedImageUri } from '@/lib/widget-bridge';
 import { getTheme } from '@/themes';
 import { gradient } from '@/lib/gradient';
@@ -42,7 +43,7 @@ export default function PreviewScreen() {
 
   /** Switches the widgets to this theme and saves its wallpaper to Photos. */
   async function useTheme() {
-    if (!theme) return;
+    if (!theme || !requirePlus('theme', theme.key)) return;
     setSaving(true);
     try {
       setWidgetTheme(theme.key);

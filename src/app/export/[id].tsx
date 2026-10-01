@@ -9,6 +9,7 @@ import { captureRef } from 'react-native-view-shot';
 import { TikTokPost } from '@/components/home/tiktok-post';
 import { PinkButton } from '@/components/pink-button';
 import { Geist } from '@/components/widgets/tokens';
+import { requirePlus, usePlus } from '@/lib/plus';
 import { saveImageToPhotos } from '@/lib/save-wallpaper';
 import { getMixtape, sharedImageUri } from '@/lib/widget-bridge';
 import { getTheme } from '@/themes';
@@ -22,6 +23,7 @@ export default function ExportScreen() {
   const [busy, setBusy] = useState<'save' | 'share'>();
   const [stage, setStage] = useState({ width: 0, height: 0 });
   const [mode, setMode] = useState<'frame' | 'screen'>('frame');
+  const plus = usePlus();
 
   if (!theme) return null;
   const hooks = [...theme.hooks, ''];
@@ -92,6 +94,7 @@ export default function ExportScreen() {
             layout={Number(layout ?? 0)}
             mixtape={mixtape}
             mode={mode}
+            watermark={!plus}
           />
         )}
       </View>
@@ -148,7 +151,15 @@ export default function ExportScreen() {
           disabled={!!busy}
         />
       </View>
-      <Text style={styles.hint}>1080 × 1920, ready for TikTok photo mode, Reels and Stories.</Text>
+      {plus ? (
+        <Text style={styles.hint}>1080 × 1920, ready for TikTok photo mode, Reels and Stories.</Text>
+      ) : (
+        <Pressable hitSlop={8} onPress={() => requirePlus('export')}>
+          <Text style={styles.hint}>
+            1080 × 1920 for TikTok. <Text style={styles.hintLink}>Remove the watermark with Plus ✧</Text>
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -185,4 +196,5 @@ const styles = StyleSheet.create({
   chipTextOn: { color: 'white' },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 12 },
   hint: { fontFamily: Geist.medium, fontSize: 12, color: '#9E6A93', textAlign: 'center' },
+  hintLink: { fontFamily: Geist.bold, color: '#E3268F' },
 });

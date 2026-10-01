@@ -118,9 +118,17 @@ struct VibeWidget: Widget {
 
   var body: some WidgetConfiguration {
     AppIntentConfiguration(kind: kind, intent: VibeWidgetIntent.self, provider: VibeProvider()) { entry in
-      VibeWidgetView(entry: entry)
+      Group {
+        if SharedSettings.isPlus {
+          VibeWidgetView(entry: entry)
+        } else {
+          PlusLockedView(name: "Vibe Card", size: entry.size)
+        }
+      }
         .containerBackground(for: .widget) {
-          if let photo = entry.photo {
+          if !SharedSettings.isPlus {
+            WallpaperGlass(slot: GlassSlot(side: .left, row: .row1), family: .systemSmall, size: entry.size)
+          } else if let photo = entry.photo {
             Image(uiImage: photo).resizable().scaledToFill()
           } else {
             VibePlaceholder(theme: entry.theme)

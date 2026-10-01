@@ -11,6 +11,10 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Label>Widgets</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={{ default: 'square.grid.2x2', selected: 'square.grid.2x2.fill' }} />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={{ default: 'gearshape', selected: 'gearshape.fill' }} />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

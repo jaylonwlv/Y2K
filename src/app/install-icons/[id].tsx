@@ -12,6 +12,7 @@ import { PinkButton } from '@/components/pink-button';
 import { Geist, type ThemeKey } from '@/components/widgets/tokens';
 import { APPLE_APPS, POPULAR_APPS, type LinkedApp } from '@/lib/app-links';
 import { buildIconProfile, type ProfileIcon } from '@/lib/icon-profile';
+import { requirePlus } from '@/lib/plus';
 import { getTheme } from '@/themes';
 
 import { ProfileServer } from '../../../modules/profile-server';
@@ -77,7 +78,7 @@ export default function InstallIconsScreen() {
   }
 
   async function install() {
-    if (!theme) return;
+    if (!theme || !requirePlus('installIcons')) return;
     if (!ProfileServer) {
       Alert.alert(
         'Update needed',

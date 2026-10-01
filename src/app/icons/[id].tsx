@@ -10,6 +10,7 @@ import { glyphUse, iconSets, type IconChoice } from '@/components/home/icon-sets
 import { ThemeIcon } from '@/components/home/theme-icon';
 import { PinkButton } from '@/components/pink-button';
 import { Geist } from '@/components/widgets/tokens';
+import { requirePlus } from '@/lib/plus';
 import { saveImageToPhotos } from '@/lib/save-wallpaper';
 import { getTheme } from '@/themes';
 
@@ -42,6 +43,7 @@ export default function IconsScreen() {
   }
 
   async function saveMany(icons: IconChoice[]) {
+    if (!theme || !requirePlus('theme', theme.key)) return;
     try {
       for (const [i, icon] of icons.entries()) {
         setProgress(`Saving ${i + 1} of ${icons.length}…`);
@@ -65,6 +67,7 @@ export default function IconsScreen() {
   }
 
   async function share(icon: IconChoice) {
+    if (!theme || !requirePlus('theme', theme.key)) return;
     try {
       const uri = await renderIcon(icon);
       await Sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png' });
@@ -112,7 +115,11 @@ export default function IconsScreen() {
           <View style={styles.buttons}>
             <PinkButton
               label="Install all at once"
-              onPress={() => router.push({ pathname: '/install-icons/[id]', params: { id: theme.id } })}
+              onPress={() => {
+                if (requirePlus('installIcons')) {
+                  router.push({ pathname: '/install-icons/[id]', params: { id: theme.id } });
+                }
+              }}
             />
             <PinkButton label="One by one" variant="secondary" onPress={() => router.push('/icons/guide')} />
           </View>

@@ -34,6 +34,7 @@ export default function RootLayout() {
         <Stack.Screen name="install-icons/[id]" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="edit/mixtape" options={{ presentation: 'modal' }} />
         <Stack.Screen name="edit/vibe" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="play" options={{ animation: 'none' }} />
       </Stack>
     </>

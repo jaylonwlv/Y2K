@@ -145,3 +145,15 @@ export async function saveVibe(settings: Pick<VibeSettings, 'caption' | 'subcapt
 export function isPlayableLink(link: string) {
   return /^(https?:\/\/|spotify:|music:|youtube:)/i.test(link.trim());
 }
+
+// MARK: Plus
+
+/** Whether Y2K Home Plus is unlocked; the widgets read the same flag (SharedSettings.isPlus). */
+export function getPlusFlag() {
+  return storage?.get('plus') === '1';
+}
+
+export function setPlusFlag(on: boolean) {
+  storage?.set('plus', on ? 1 : 0);
+  reloadWidgets();
+}

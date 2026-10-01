@@ -17,6 +17,9 @@ enum SharedSettings {
   /// "y2k", "aero" or "night"; see AppTheme.
   static var themeName: String { defaults?.string(forKey: "theme") ?? "" }
 
+  /// Y2K Home Plus is unlocked (written by setPlusFlag in src/lib/widget-bridge.ts).
+  static var isPlus: Bool { defaults?.integer(forKey: "plus") == 1 }
+
   static var calendarShowsEvents: Bool {
     guard let value = defaults?.object(forKey: "calendar.showEvents") else { return true }
     return (value as? Int ?? 1) != 0
@@ -84,6 +87,7 @@ struct VibeSettings {
 /// Deep links back into the app (see src/app/play.tsx and the widgets tab).
 enum AppLink {
   static let widgets = URL(string: "y2khome://widgets")!
+  static let paywall = URL(string: "y2khome://paywall")!
 
   static func play(_ link: String) -> URL {
     var components = URLComponents(string: "y2khome://play")!

@@ -213,7 +213,13 @@ private struct WorldClocksBody: View {
   @Environment(\.widgetFamily) private var family
 
   var body: some View {
-    WorldClocksView(entry: entry)
+    Group {
+      if SharedSettings.isPlus {
+        WorldClocksView(entry: entry)
+      } else {
+        PlusLockedView(name: "World Clocks", size: entry.size)
+      }
+    }
       .containerBackground(for: .widget) {
         WallpaperGlass(slot: entry.slot, family: family, size: entry.size, theme: entry.theme)
       }

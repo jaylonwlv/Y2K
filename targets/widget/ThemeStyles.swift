@@ -7,7 +7,10 @@ import WidgetKit
 enum AppTheme: String {
   case y2k, aero, night
 
-  static var current: AppTheme { AppTheme(rawValue: SharedSettings.themeName) ?? .y2k }
+  static var current: AppTheme { (AppTheme(rawValue: SharedSettings.themeName) ?? .y2k).unlocked }
+
+  /// Aero and Aero Night are Plus; without it widgets fall back to Y2K.
+  var unlocked: AppTheme { self == .y2k || SharedSettings.isPlus ? self : .y2k }
 
   var style: ThemeStyle {
     switch self {
@@ -70,8 +73,8 @@ enum WidgetStyleChoice: String, AppEnum {
     switch self {
     case .app: .current
     case .y2k: .y2k
-    case .aero: .aero
-    case .night: .night
+    case .aero: AppTheme.aero.unlocked
+    case .night: AppTheme.night.unlocked
     }
   }
 }
@@ -208,5 +211,36 @@ struct AnalogFace: View {
       .frame(width: width * u, height: (length + tail) * u)
       .offset(y: -(length - tail) / 2 * u)
       .rotationEffect(.degrees(degrees))
+  }
+}
+
+// MARK: - Plus
+
+/// Shown instead of a Plus-only widget (Weather, World Clocks, Vibe Card) until Plus is unlocked.
+/// Tapping it opens the paywall.
+struct PlusLockedView: View {
+  let name: String
+  let size: CGSize
+
+  var body: some View {
+    let k = mockupScale(size)
+    VStack(spacing: 6 * k) {
+      Text("PLUS ✧")
+        .font(Geist.bold(12 * k))
+        .tracking(1.4 * k)
+        .foregroundStyle(Y2K.hotPink)
+      Text(name)
+        .font(Geist.black(20 * k))
+        .foregroundStyle(Y2K.ink)
+      Text("Tap to unlock in Y2K Home")
+        .font(Geist.medium(12 * k))
+        .foregroundStyle(Y2K.ink.opacity(0.7))
+    }
+    .multilineTextAlignment(.center)
+    .lineLimit(2)
+    .minimumScaleFactor(0.7)
+    .padding(14 * k)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .widgetURL(AppLink.paywall)
   }
 }

@@ -33,6 +33,8 @@ import {
   sharedImageUri,
   WidgetKind,
 } from '@/lib/widget-bridge';
+import { LINKS } from '@/lib/links';
+import { isThemeFree, requirePlus, usePlus } from '@/lib/plus';
 import { getThemeByKey, themes } from '@/themes';
 
 const STEPS = [
@@ -45,9 +47,6 @@ const STEPS = [
 
 const PREVIEW = 150;
 
-/** WeatherKit's required legal attribution page. */
-const WEATHER_LEGAL_URL = 'https://weatherkit.apple.com/legal-attribution.html';
-
 const SHORT_NAMES: Record<ThemeKey, string> = { y2k: 'Y2K', aero: 'Aero', night: 'Night' };
 
 export default function WidgetsScreen() {
@@ -55,7 +54,10 @@ export default function WidgetsScreen() {
   const [showEvents, setShowEvents] = useState(getCalendarShowsEvents);
   const [mixtape, setMixtape] = useState(getMixtape);
   const [vibe, setVibe] = useState(getVibe);
-  const [theme, setTheme] = useState(getWidgetTheme);
+  const [storedTheme, setTheme] = useState(getWidgetTheme);
+  const plus = usePlus();
+  // Without Plus the widgets fall back to Y2K, so show that here too.
+  const theme = plus || isThemeFree(storedTheme) ? storedTheme : 'y2k';
   const wallpaper = getThemeByKey(theme).wallpaper;
 
   // Editors save straight to the App Group; re-read when coming back to this tab.
@@ -98,11 +100,15 @@ export default function WidgetsScreen() {
             <Pressable
               key={t.key}
               onPress={() => {
+                if (!requirePlus('theme', t.key)) return;
                 setTheme(t.key);
                 setWidgetTheme(t.key);
               }}
               style={[styles.segment, theme === t.key && styles.segmentOn]}>
-              <Text style={[styles.segmentText, theme === t.key && styles.segmentTextOn]}>{SHORT_NAMES[t.key]}</Text>
+              <Text style={[styles.segmentText, theme === t.key && styles.segmentTextOn]}>
+                {SHORT_NAMES[t.key]}
+                {!plus && !isThemeFree(t.key) ? ' ✧' : ''}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -153,6 +159,7 @@ export default function WidgetsScreen() {
       <WidgetCard
         wallpaper={wallpaper}
         name="Vibe Card"
+        locked={!plus}
         blurb="Your own photo with a caption. Comes in small and medium."
         preview={
           <VibePreview
@@ -177,6 +184,7 @@ export default function WidgetsScreen() {
       <WidgetCard
         wallpaper={wallpaper}
         name="World Clocks"
+        locked={!plus}
         blurb="Home, New York, London and Tokyo. Dials light up where it's daytime. Medium size; change the cities with Edit Widget."
         preview={<WorldClocksPreview width={310} height={146} theme={theme} />}
       />
@@ -184,11 +192,12 @@ export default function WidgetsScreen() {
       <WidgetCard
         wallpaper={wallpaper}
         name="Weather"
+        locked={!plus}
         blurb="Live weather for a real city, updated every half hour. Small or medium; pick your city with Edit Widget."
         preview={<WeatherPreview width={310} height={146} theme={theme} />}>
         <Text style={styles.attribution}>
           Weather data from Apple Weather.{' '}
-          <Text style={styles.link} onPress={() => Linking.openURL(WEATHER_LEGAL_URL)}>
+          <Text style={styles.link} onPress={() => Linking.openURL(LINKS.weatherLegal)}>
             Data sources
           </Text>
         </Text>
@@ -212,10 +221,13 @@ function WidgetCard({
   name,
   blurb,
   preview,
+  locked,
   children,
 }: {
   wallpaper: ImageSourcePropType;
   name: string;
+  /** Plus-only: shows a badge and an Unlock button. */
+  locked?: boolean;
   blurb: string;
   preview: React.ReactNode;
   children?: React.ReactNode;
@@ -225,7 +237,14 @@ function WidgetCard({
       <WallpaperStage height={210} wallpaper={wallpaper}>
         {preview}
       </WallpaperStage>
-      <Text style={styles.cardTitle}>{name}</Text>
+      <View style={styles.nameRow}>
+        <Text style={styles.cardTitle}>{name}</Text>
+        {locked && (
+          <Pressable onPress={() => requirePlus('widget')} style={styles.plusBadge}>
+            <Text style={styles.plusBadgeText}>Plus ✧</Text>
+          </Pressable>
+        )}
+      </View>
       <Text style={styles.body}>{blurb}</Text>
       {children}
     </View>
@@ -248,6 +267,9 @@ const styles = StyleSheet.create({
   body: { fontSize: 15, lineHeight: 21, fontFamily: Geist.medium, color: '#5E3656', marginHorizontal: 4 },
   attribution: { fontSize: 13, fontFamily: Geist.medium, color: '#8A4C7E', marginHorizontal: 4 },
   link: { fontFamily: Geist.bold, color: '#E3268F', textDecorationLine: 'underline' },
+  nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  plusBadge: { backgroundColor: '#E3268F', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, marginTop: 4 },
+  plusBadgeText: { fontFamily: Geist.bold, fontSize: 12, color: 'white' },
   ok: { fontSize: 15, fontFamily: Geist.bold, color: '#1E9E5A', marginHorizontal: 4 },
   segments: { flexDirection: 'row', gap: 8 },
   segment: {

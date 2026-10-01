@@ -206,6 +206,11 @@ struct WeatherProvider: AppIntentTimelineProvider {
   }
 
   func timeline(for configuration: WeatherWidgetIntent, in context: Context) async -> Timeline<WeatherEntry> {
+    // Locked until Plus; the app reloads every widget when Plus turns on.
+    guard SharedSettings.isPlus else {
+      let entry = WeatherEntry(date: .now, report: nil, slot: configuration.slot, size: context.displaySize)
+      return Timeline(entries: [entry], policy: .never)
+    }
     var report: WeatherReport?
     var problem: String?
     do {
@@ -365,9 +370,15 @@ private struct WeatherBody: View {
   @Environment(\.widgetFamily) private var family
 
   var body: some View {
-    WeatherWidgetView(entry: entry)
-      // The app's Widgets tab links to the full WeatherKit legal attribution.
-      .widgetURL(AppLink.widgets)
+    Group {
+      if SharedSettings.isPlus {
+        WeatherWidgetView(entry: entry)
+          // The app's Widgets tab links to the full WeatherKit legal attribution.
+          .widgetURL(AppLink.widgets)
+      } else {
+        PlusLockedView(name: "Weather", size: entry.size)
+      }
+    }
       .containerBackground(for: .widget) {
         WallpaperGlass(slot: entry.slot, family: family, size: entry.size, theme: entry.theme)
       }

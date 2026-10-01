@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { HomeScreen } from '@/components/home/home-screen';
 import { Geist } from '@/components/widgets/tokens';
+import { isThemeFree, usePlus } from '@/lib/plus';
 import { getMixtape, getWidgetTheme, sharedImageUri } from '@/lib/widget-bridge';
 import { themes } from '@/themes';
 
@@ -13,6 +14,7 @@ const MINI_HEIGHT = (MINI_WIDTH * 956) / 440;
 
 export default function ThemesScreen() {
   const [active, setActive] = useState(getWidgetTheme);
+  const plus = usePlus();
   useFocusEffect(useCallback(() => setActive(getWidgetTheme()), []));
 
   const saved = getMixtape();
@@ -34,11 +36,18 @@ export default function ThemesScreen() {
           style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
           <Image source={theme.wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
           <View style={styles.cardText}>
-            {active === theme.key && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>✓ On your widgets</Text>
-              </View>
-            )}
+            <View style={styles.badges}>
+              {active === theme.key && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>✓ On your widgets</Text>
+                </View>
+              )}
+              {!plus && !isThemeFree(theme.key) && (
+                <View style={[styles.badge, styles.plusBadge]}>
+                  <Text style={[styles.badgeText, styles.plusBadgeText]}>Plus ✧</Text>
+                </View>
+              )}
+            </View>
             <View style={{ flex: 1 }} />
             <View style={styles.label}>
               <Text style={styles.name}>{theme.name}</Text>
@@ -95,6 +104,9 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   badgeText: { fontFamily: Geist.bold, fontSize: 12, color: '#1E7A4A' },
+  badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  plusBadge: { backgroundColor: '#E3268F' },
+  plusBadgeText: { color: 'white' },
   label: {
     padding: 12,
     borderRadius: 20,
