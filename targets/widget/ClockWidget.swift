@@ -16,6 +16,9 @@ struct ClockWidgetIntent: WidgetConfigurationIntent {
   @Parameter(title: "Starts on icon row", default: .row1)
   var row: WidgetRow
 
+  @Parameter(title: "Style", default: .app)
+  var style: WidgetStyleChoice
+
   var slot: GlassSlot { GlassSlot(side: side, row: row) }
 }
 
@@ -32,7 +35,7 @@ struct ClockProvider: AppIntentTimelineProvider {
   }
 
   func snapshot(for configuration: ClockWidgetIntent, in context: Context) async -> ClockEntry {
-    ClockEntry(date: .now, slot: configuration.slot, size: context.displaySize)
+    ClockEntry(date: .now, slot: configuration.slot, size: context.displaySize, theme: configuration.style.theme)
   }
 
   func timeline(for configuration: ClockWidgetIntent, in context: Context) async -> Timeline<ClockEntry> {
@@ -41,7 +44,7 @@ struct ClockProvider: AppIntentTimelineProvider {
     let startOfMinute = calendar.dateInterval(of: .minute, for: .now)?.start ?? .now
     let entries = (0..<60).map { offset in
       ClockEntry(date: startOfMinute.addingTimeInterval(Double(offset) * 60),
-                 slot: configuration.slot, size: context.displaySize)
+                 slot: configuration.slot, size: context.displaySize, theme: configuration.style.theme)
     }
     return Timeline(entries: entries, policy: .atEnd)
   }

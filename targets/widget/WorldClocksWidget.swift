@@ -73,6 +73,9 @@ struct WorldClocksIntent: WidgetConfigurationIntent {
 
   @Parameter(title: "Starts on icon row", default: .row1)
   var row: WidgetRow
+
+  @Parameter(title: "Style", default: .app)
+  var style: WidgetStyleChoice
 }
 
 struct ClockCity: Hashable {
@@ -107,7 +110,8 @@ struct WorldClocksProvider: AppIntentTimelineProvider {
 
   private func entry(at date: Date, _ configuration: WorldClocksIntent, _ context: Context) -> WorldClocksEntry {
     WorldClocksEntry(date: date, cities: Self.cities(configuration.city1, configuration.city2, configuration.city3),
-                     slot: GlassSlot(side: .left, row: configuration.row), size: context.displaySize)
+                     slot: GlassSlot(side: .left, row: configuration.row), size: context.displaySize,
+                     theme: configuration.style.theme)
   }
 
   static func cities(_ cities: WorldCity...) -> [ClockCity] {

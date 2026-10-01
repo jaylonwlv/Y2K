@@ -1,3 +1,4 @@
+import AppIntents
 import SwiftUI
 import UIKit
 import WidgetKit
@@ -12,24 +13,33 @@ struct VibeEntry: TimelineEntry {
   var theme: AppTheme = .current
 }
 
-struct VibeProvider: TimelineProvider {
+struct VibeWidgetIntent: WidgetConfigurationIntent {
+  static var title: LocalizedStringResource { "Vibe Card" }
+  static var description: IntentDescription { "Pick the widget's style. The photo and caption are set in the app." }
+
+  @Parameter(title: "Style", default: .app)
+  var style: WidgetStyleChoice
+}
+
+struct VibeProvider: AppIntentTimelineProvider {
   func placeholder(in context: Context) -> VibeEntry {
     VibeEntry(date: .now, settings: VibeSettings(), photo: nil, size: context.displaySize)
   }
 
-  func getSnapshot(in context: Context, completion: @escaping (VibeEntry) -> Void) {
-    completion(entry(context))
+  func snapshot(for configuration: VibeWidgetIntent, in context: Context) async -> VibeEntry {
+    entry(configuration, context)
   }
 
-  func getTimeline(in context: Context, completion: @escaping (Timeline<VibeEntry>) -> Void) {
+  func timeline(for configuration: VibeWidgetIntent, in context: Context) async -> Timeline<VibeEntry> {
     // Content only changes when the app saves new settings, and the app reloads us then.
-    completion(Timeline(entries: [entry(context)], policy: .never))
+    Timeline(entries: [entry(configuration, context)], policy: .never)
   }
 
-  private func entry(_ context: Context) -> VibeEntry {
+  private func entry(_ configuration: VibeWidgetIntent, _ context: Context) -> VibeEntry {
     let settings = VibeSettings.load()
     let photo = settings.hasPhoto ? SharedSettings.image("vibe-photo.jpg", maxPixelSize: 1200) : nil
-    return VibeEntry(date: .now, settings: settings, photo: photo, size: context.displaySize)
+    return VibeEntry(date: .now, settings: settings, photo: photo, size: context.displaySize,
+                     theme: configuration.style.theme)
   }
 }
 
@@ -82,20 +92,38 @@ struct VibeWidgetView: View {
   }
 }
 
+/// Background before a photo is picked: holo foil (Y2K), sky to grass (Aero), aurora (Night).
+private struct VibePlaceholder: View {
+  let theme: AppTheme
+
+  var body: some View {
+    switch theme {
+    case .y2k:
+      ZStack {
+        Y2K.holo
+        Color.white.opacity(0.25)
+      }
+    case .aero:
+      LinearGradient(colors: [Color(hex: 0xBFE8FF), Color(hex: 0x4FB3F0), Color(hex: 0x8FD45E)],
+                     startPoint: .top, endPoint: .bottom)
+    case .night:
+      LinearGradient(colors: [Color(hex: 0x050B16), Color(hex: 0x0E5A55), Color(hex: 0x1A3F8F)],
+                     startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+  }
+}
+
 struct VibeWidget: Widget {
   let kind = "Y2KVibe"
 
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: VibeProvider()) { entry in
+    AppIntentConfiguration(kind: kind, intent: VibeWidgetIntent.self, provider: VibeProvider()) { entry in
       VibeWidgetView(entry: entry)
         .containerBackground(for: .widget) {
           if let photo = entry.photo {
             Image(uiImage: photo).resizable().scaledToFill()
           } else {
-            ZStack {
-              Y2K.holo
-              Color.white.opacity(0.25)
-            }
+            VibePlaceholder(theme: entry.theme)
           }
         }
     }

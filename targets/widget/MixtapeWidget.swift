@@ -19,6 +19,9 @@ struct MixtapeWidgetIntent: WidgetConfigurationIntent {
   @Parameter(title: "Starts on icon row", default: .row1)
   var row: WidgetRow
 
+  @Parameter(title: "Style", default: .app)
+  var style: WidgetStyleChoice
+
   var slot: GlassSlot { GlassSlot(side: side, row: row) }
 }
 
@@ -49,7 +52,8 @@ struct MixtapeProvider: AppIntentTimelineProvider {
   private func entry(_ configuration: MixtapeWidgetIntent, _ context: Context) -> MixtapeEntry {
     let settings = MixtapeSettings.load()
     let cover = settings.hasCover ? SharedSettings.image("mixtape-cover.jpg", maxPixelSize: 300) : nil
-    return MixtapeEntry(date: .now, settings: settings, cover: cover, slot: configuration.slot, size: context.displaySize)
+    return MixtapeEntry(date: .now, settings: settings, cover: cover, slot: configuration.slot, size: context.displaySize,
+                        theme: configuration.style.theme)
   }
 }
 
