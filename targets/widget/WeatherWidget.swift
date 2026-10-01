@@ -120,13 +120,12 @@ struct WeatherReport {
     ]
   )
 
-  static func fetch(_ city: WeatherCity) async -> WeatherReport? {
+  static func fetch(_ city: WeatherCity) async throws -> WeatherReport {
     let place = city.place
     let location = CLLocation(latitude: place.latitude, longitude: place.longitude)
-    guard let result = try? await WeatherService.shared.weather(
+    let (current, hourly, daily) = try await WeatherService.shared.weather(
       for: location, including: .current, .hourly, .daily
-    ) else { return nil }
-    let (current, hourly, daily) = result
+    )
 
     let unit: UnitTemperature = Locale.current.measurementSystem == .us ? .fahrenheit : .celsius
     func degrees(_ value: Measurement<UnitTemperature>) -> Int { Int(value.converted(to: unit).value.rounded()) }
@@ -161,10 +160,25 @@ struct WeatherReport {
   }
 }
 
+/// Why a forecast couldn't be loaded, in words someone can act on.
+func weatherProblem(_ error: Error) -> String {
+  let text = String(describing: error)
+  // WeatherKit signs each request with a token tied to the App ID; it fails until the
+  // WeatherKit capability and service are enabled for it and Apple has caught up.
+  if text.contains("JWT") || text.contains("Authenticator") || text.contains("401") {
+    return "WeatherKit isn't active for this widget yet. Check it's ticked under Capabilities and App Services for the .widget App ID; Apple can take a few hours."
+  }
+  if error is URLError || text.contains("NSURLErrorDomain") {
+    return "No internet connection."
+  }
+  return String(text.prefix(140))
+}
+
 struct WeatherEntry: TimelineEntry {
   let date: Date
-  /// nil when WeatherKit couldn't be reached; the widget says so and retries soon.
+  /// nil when WeatherKit couldn't be reached; the widget says why and retries soon.
   let report: WeatherReport?
+  var problem: String?
   let slot: GlassSlot
   let size: CGSize
   var theme: AppTheme = .current
@@ -177,13 +191,26 @@ struct WeatherProvider: AppIntentTimelineProvider {
 
   func snapshot(for configuration: WeatherWidgetIntent, in context: Context) async -> WeatherEntry {
     var report = WeatherReport.sample
-    if !context.isPreview, let live = await WeatherReport.fetch(configuration.city) { report = live }
+    if !context.isPreview {
+      do {
+        report = try await WeatherReport.fetch(configuration.city)
+      } catch {
+        // The gallery snapshot falls back to the sample; the timeline shows the problem.
+      }
+    }
     return WeatherEntry(date: .now, report: report, slot: configuration.slot, size: context.displaySize)
   }
 
   func timeline(for configuration: WeatherWidgetIntent, in context: Context) async -> Timeline<WeatherEntry> {
-    let report = await WeatherReport.fetch(configuration.city)
-    let entry = WeatherEntry(date: .now, report: report, slot: configuration.slot, size: context.displaySize)
+    var report: WeatherReport?
+    var problem: String?
+    do {
+      report = try await WeatherReport.fetch(configuration.city)
+    } catch {
+      problem = weatherProblem(error)
+    }
+    let entry = WeatherEntry(date: .now, report: report, problem: problem, slot: configuration.slot,
+                             size: context.displaySize)
     // Fresh forecast every half hour; retry sooner if it failed.
     let next = Date.now.addingTimeInterval(report == nil ? 15 * 60 : 30 * 60)
     return Timeline(entries: [entry], policy: .after(next))
@@ -236,9 +263,16 @@ struct WeatherWidgetView: View {
           Text("Weather isn't available right now")
             .font(Geist.semibold(14 * k))
             .multilineTextAlignment(.center)
-          Text("It'll try again in a few minutes.")
-            .font(Geist.medium(12 * k))
-            .opacity(0.7)
+          if let problem = entry.problem {
+            Text(problem)
+              .font(Geist.medium(11 * k))
+              .multilineTextAlignment(.center)
+              .minimumScaleFactor(0.7)
+              .opacity(0.75)
+          }
+          Text("Trying again in 15 minutes.")
+            .font(Geist.medium(11 * k))
+            .opacity(0.55)
         }
         .padding(16 * k)
       }
