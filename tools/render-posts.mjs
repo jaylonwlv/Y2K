@@ -4,6 +4,7 @@
 //   CHROMIUM_PATH=/path/to/chromium node tools/render-posts.mjs <out-dir> <theme-id>:<layout>:<hook#|screen> ...
 //
 // e.g. `frutiger-aero:0:0` is layout 0 with the first hook; `aero-night:2:screen` is Full screen mode.
+// CLEAN=1 hides the free-tier watermark (for our own posts).
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
@@ -33,6 +34,14 @@ for (const job of jobs) {
     await chips.nth(Number(hook)).click();
   }
   await page.waitForTimeout(1200);
+  if (process.env.CLEAN) {
+    // Our own marketing posts: hide the free-tier watermark.
+    await page.evaluate(() => {
+      for (const el of document.querySelectorAll('div')) {
+        if (el.textContent === 'made with Y2K Home ✧') el.style.display = 'none';
+      }
+    });
+  }
   const post = page.getByTestId('tiktok-post');
   const box = await post.boundingBox();
   const file = join(out, `${id}-layout${layout}-${hook === 'screen' ? 'fullscreen' : `hook${hook}`}.png`);
