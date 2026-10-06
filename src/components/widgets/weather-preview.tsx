@@ -18,7 +18,7 @@ type Forecast = {
 
 /**
  * Typical late-September conditions for real cities, timed to the exports' 9:41 status bar:
- * a sunny San Diego morning for Aero, a clear aurora night in Reykjavík for Aero Night.
+ * a sunny San Diego morning for Aero, a clear Los Angeles night for Aero Night.
  */
 const DAY: Forecast = {
   city: 'San Diego',
@@ -38,19 +38,19 @@ const DAY: Forecast = {
 };
 
 const NIGHT: Forecast = {
-  city: 'Reykjavík',
-  temp: 41,
+  city: 'Los Angeles',
+  temp: 67,
   sky: 'moon',
   condition: 'Clear',
-  high: 48,
-  low: 37,
+  high: 80,
+  low: 62,
   hours: [
-    ['Now', 41, 'moon'],
-    ['10PM', 40, 'moon'],
-    ['11PM', 40, 'moon'],
-    ['12AM', 39, 'moonCloud'],
-    ['1AM', 38, 'moon'],
-    ['2AM', 38, 'moon'],
+    ['Now', 67, 'moon'],
+    ['10PM', 66, 'moon'],
+    ['11PM', 65, 'moon'],
+    ['12AM', 64, 'moonCloud'],
+    ['1AM', 63, 'moon'],
+    ['2AM', 63, 'moon'],
   ],
 };
 

@@ -27,7 +27,7 @@ For day-to-day work, use the `development` build profile (dev client plus Metro)
   - **Weather** (small, medium): live WeatherKit forecast for a city you pick with Edit Widget, refreshed every 30 minutes. Needs WeatherKit ticked (Capabilities and App Services) for `com.jaylonwlv.y2khome.widget` at developer.apple.com.
 - The glass is a blurred crop of the wallpaper (Night's is opaque). *Edit Widget › Side / Starts on icon row*
   tells a widget where it sits. The grid comes from iOS 26 measurements (`src/lib/home-grid.ts`).
-- Previews and exports show sample weather for real cities (San Diego for Aero, Reykjavík for Aero Night).
+- Previews and exports show sample weather for real cities (San Diego for Aero, Los Angeles for Aero Night).
 
 ## Layout
 
